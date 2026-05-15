@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0c0818">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Blessing Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #e8b930;
+      --rose: #e06070;
+      --lavender: #c0a0ff;
+      --sakura: #f0a0b0;
+      --text: #f5f0e8;
+      --text-muted: #9a9298;
+      --card-surface: rgba(25, 18, 40, 0.92);
+      --card-border: rgba(232, 185, 48, 0.18);
+      --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+      --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      font-family: var(--font-body);
+      color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      position: relative;
+      cursor: crosshair;
+      background:
+        radial-gradient(ellipse at 15% 15%, rgba(100, 30, 60, 0.45) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 80%, rgba(30, 25, 80, 0.45) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(15, 10, 30, 0.9) 0%, transparent 80%),
+        linear-gradient(150deg, #0c0818 0%, #1a1030 35%, #251525 65%, #180c1a 100%);
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+      pointer-events: none; z-index: 9999; opacity: 0.3;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(1.8px 1.8px at 12% 22%, rgba(232,185,48,0.35) 50%, transparent 50%),
+        radial-gradient(1.2px 1.2px at 33% 72%, rgba(232,185,48,0.2) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at 58% 28%, rgba(224,96,112,0.25) 50%, transparent 50%),
+        radial-gradient(1px 1px at 78% 55%, rgba(192,160,255,0.25) 50%, transparent 50%),
+        radial-gradient(2px 2px at 90% 12%, rgba(232,185,48,0.2) 50%, transparent 50%),
+        radial-gradient(1.2px 1.2px at 45% 88%, rgba(232,185,48,0.15) 50%, transparent 50%),
+        radial-gradient(1px 1px at 8% 60%, rgba(192,160,255,0.2) 50%, transparent 50%);
+      pointer-events: none; z-index: 9998;
+    }
+
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      padding: 1.5rem 1.5rem 0.6rem;
+      background: linear-gradient(to bottom, rgba(12,8,24,0.92) 0%, rgba(12,8,24,0.6) 60%, transparent 100%);
+      text-align: center; pointer-events: none;
+    }
+    .header nav { pointer-events: auto; }
+
+    .title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+      letter-spacing: 0.03em;
+      color: var(--text);
+      opacity: 0; animation: fadeDown 0.7s ease forwards;
+    }
+    .title span { color: var(--gold); font-style: italic; }
+
+    .subtitle {
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 0.15rem;
+      opacity: 0; animation: fadeDown 0.7s ease 0.15s forwards;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .categories {
+      display: flex; gap: 0.45rem;
+      justify-content: center; flex-wrap: wrap;
+      padding: 0.8rem 0 0;
+      opacity: 0; animation: fadeDown 0.7s ease 0.3s forwards;
+    }
+
+    .pill {
+      font-family: var(--font-body);
+      font-size: clamp(0.6rem, 1.6vw, 0.72rem);
+      font-weight: 500;
+      padding: 0.38rem 0.95rem;
+      border: 1px solid var(--card-border);
+      border-radius: 100px;
+      background: rgba(25,18,40,0.7);
+      color: var(--text-muted);
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
+    }
+    .pill:hover, .pill:focus-visible {
+      border-color: var(--gold);
+      color: var(--text);
+      background: rgba(232,185,48,0.08);
+    }
+    .pill:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .pill.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(232,185,48,0.12);
+      box-shadow: 0 0 18px rgba(232,185,48,0.08);
+    }
+
+    .lang-sep {
+      width: 1px; height: 1.1rem;
+      background: rgba(255,255,255,0.1);
+      align-self: center; margin: 0 0.15rem;
+    }
+    .pill.lang-pill { font-size: clamp(0.62rem, 1.6vw, 0.74rem); letter-spacing: 0.04em; }
+    .pill.lang-pill.active[data-lang="ja"] {
+      border-color: var(--sakura); color: var(--sakura);
+      background: rgba(240,160,176,0.1); box-shadow: 0 0 14px rgba(240,160,176,0.06);
+    }
+    .pill.lang-pill.active:not([data-lang="ja"]) {
+      border-color: var(--lavender); color: var(--lavender);
+      background: rgba(192,160,255,0.1); box-shadow: 0 0 14px rgba(192,160,255,0.06);
+    }
+
+    .voice-badge {
+      position: fixed; bottom: 2.8rem; left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-body);
+      font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.04em; z-index: 500;
+      opacity: 0; animation: fadeDown 0.7s ease 0.9s forwards;
+      text-align: center; white-space: nowrap;
+      padding: 0.25rem 0.7rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 100px;
+      background: rgba(12,8,24,0.5);
+      max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
+    }
+    .voice-badge .v-dot {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; margin-right: 0.3rem; vertical-align: middle;
+    }
+    .voice-badge .v-dot.ok   { background: #50c878; }
+    .voice-badge .v-dot.warn { background: var(--gold); }
+
+    .prompt {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center; z-index: 10;
+      pointer-events: none;
+      opacity: 0; animation: promptIn 1s ease 0.8s forwards;
+    }
+    .prompt-icon {
+      font-size: 2.8rem; color: var(--gold);
+      opacity: 0.5;
+      animation: gentleFloat 3.5s ease-in-out infinite;
+      line-height: 1;
+    }
+    .prompt-text {
+      font-family: var(--font-display);
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      font-weight: 400; font-style: italic;
+      color: var(--text-muted);
+      margin-top: 0.6rem; letter-spacing: 0.02em;
+    }
+    @keyframes promptIn { to { opacity: 1; } }
+    @keyframes gentleFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .prompt.hidden { opacity: 0 !important; transition: opacity 0.5s ease; pointer-events: none; }
+
+    .blessing {
+      position: fixed; z-index: 300;
+      max-width: min(380px, 86vw);
+      padding: 1.2rem 1.4rem 1rem;
+      background: var(--card-surface);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+      pointer-events: auto;
+      opacity: 0; transform: translateY(14px) scale(0.93);
+      animation: cardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+      .blessing {
+        background: linear-gradient(135deg, rgba(255,245,230,0.09) 0%, rgba(232,185,48,0.05) 100%);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+      }
+    }
+    .blessing.exiting {
+      animation: cardOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      pointer-events: none;
+    }
+    @keyframes cardIn { from{opacity:0;transform:translateY(14px) scale(0.93)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes cardOut { from{opacity:1;transform:translateY(0) scale(1);filter:blur(0)} to{opacity:0;transform:translateY(-18px) scale(0.96);filter:blur(2px)} }
+
+    .blessing-cat {
+      font-family: var(--font-body);
+      font-size: 0.6rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--gold); margin-bottom: 0.55rem;
+      display: flex; align-items: center; gap: 0.35rem;
+    }
+    .blessing-cat::before { content: '\2726'; font-size: 0.5rem; }
+
+    .blessing-text {
+      font-family: var(--font-display);
+      font-size: clamp(1rem, 2.6vw, 1.18rem);
+      font-weight: 400; line-height: 1.55; color: var(--text);
+    }
+
+    .blessing-actions {
+      display: flex; justify-content: flex-end; gap: 0.45rem;
+      margin-top: 0.85rem; flex-wrap: wrap;
+    }
+
+    .btn-speak, .btn-dismiss, .btn-record, .btn-rerecord {
+      font-family: var(--font-body);
+      font-size: 0.65rem; font-weight: 500;
+      padding: 0.3rem 0.8rem;
+      border: 1px solid transparent;
+      border-radius: 100px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+
+    .btn-speak {
+      border-color: rgba(232,185,48,0.3);
+      background: rgba(232,185,48,0.08);
+      color: var(--gold);
+    }
+    .btn-speak:hover, .btn-speak:focus-visible {
+      background: rgba(232,185,48,0.18); border-color: var(--gold);
+      box-shadow: 0 0 14px rgba(232,185,48,0.12);
+    }
+    .btn-speak:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .btn-speak svg, .btn-record svg, .btn-rerecord svg, .btn-dismiss svg {
+      width: 13px; height: 13px; fill: currentColor; flex-shrink: 0;
+    }
+
+    .btn-dismiss {
+      border-color: rgba(154,146,152,0.2);
+      background: transparent; color: var(--text-muted);
+    }
+    .btn-dismiss:hover, .btn-dismiss:focus-visible {
+      border-color: var(--text-muted); color: var(--text);
+    }
+    .btn-dismiss:focus-visible { outline: 2px solid var(--text-muted); outline-offset: 2px; }
+
+    .btn-record {
+      border-color: rgba(224,96,112,0.35);
+      background: rgba(224,96,112,0.06);
+      color: var(--rose);
+    }
+    .btn-record:hover, .btn-record:focus-visible {
+      background: rgba(224,96,112,0.15); border-color: var(--rose);
+      box-shadow: 0 0 14px rgba(224,96,112,0.12);
+    }
+    .btn-record:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
+
+    .btn-record.recording {
+      border-color: var(--rose);
+      background: rgba(224,96,112,0.15);
+      animation: recPulse 1.5s ease-in-out infinite;
+      min-width: 110px; justify-content: center;
+    }
+    @keyframes recPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(224,96,112,0.3); }
+      50%     { box-shadow: 0 0 16px 4px rgba(224,96,112,0.12); }
+    }
+
+    .rec-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #e04050; display: inline-block; flex-shrink: 0;
+      animation: dotPulse 0.8s ease-in-out infinite;
+    }
+    @keyframes dotPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.8)} }
+
+    .rec-timer {
+      font-size: 0.72rem; font-weight: 500; color: var(--rose);
+      font-variant-numeric: tabular-nums; min-width: 2.2em; text-align: center;
+    }
+
+    .btn-rerecord {
+      border-color: rgba(192,160,255,0.3);
+      background: rgba(192,160,255,0.06);
+      color: var(--lavender);
+    }
+    .btn-rerecord:hover, .btn-rerecord:focus-visible {
+      background: rgba(192,160,255,0.15); border-color: var(--lavender);
+    }
+    .btn-rerecord:focus-visible { outline: 2px solid var(--lavender); outline-offset: 2px; }
+
+    .record-error {
+      width: 100%; text-align: right;
+      font-size: 0.6rem; color: var(--rose); opacity: 0.9;
+      margin-bottom: 0.2rem; padding: 0.25rem 0;
+    }
+
+    .sparkle {
+      position: fixed; pointer-events: none; z-index: 250;
+      border-radius: 50%;
+      animation: sparklePop 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+    }
+    @keyframes sparklePop { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)} }
+
+    .heart-trail {
+      position: fixed; pointer-events: none; z-index: 600;
+      animation: heartFloat 1.6s ease-out forwards;
+    }
+    @keyframes heartFloat {
+      0%   { opacity:1; transform:translate(0,0) scale(1) rotate(0deg); }
+      20%  { opacity:0.95; transform:translate(calc(var(--dx)*0.3),calc(var(--dy)*0.3-12px)) scale(1.15) rotate(calc(var(--sp)*0.2)); }
+      60%  { opacity:0.6; transform:translate(calc(var(--dx)*0.7),calc(var(--dy)*0.7-40px)) scale(0.85) rotate(calc(var(--sp)*0.6)); }
+      100% { opacity:0; transform:translate(var(--dx),calc(var(--dy)-70px)) scale(0.3) rotate(var(--sp)); }
+    }
+    .heart-glow {
+      position: fixed; pointer-events: none; z-index: 599;
+      border-radius: 50%;
+      animation: glowPulse 0.9s ease-out forwards;
+    }
+    @keyframes glowPulse { 0%{opacity:0.45;transform:translate(-50%,-50%) scale(0.5)} 100%{opacity:0;transform:translate(-50%,-50%) scale(2.5)} }
+
+    #trailCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 598; touch-action: none; }
+
+    .counter {
+      position: fixed; bottom: 1.2rem; left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-body);
+      font-size: 0.7rem; color: var(--text-muted);
+      letter-spacing: 0.06em; z-index: 500;
+      opacity: 0; animation: fadeDown 0.7s ease 0.7s forwards;
+      white-space: nowrap;
+    }
+    .counter strong { color: var(--gold); font-weight: 500; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    /* small phones */
+    @media (max-width: 360px) {
+      body::before { opacity: 0.15; }
+      .header { padding: 0.8rem 0.7rem 0.3rem; }
+      .title { font-size: 1.3rem; }
+      .subtitle { font-size: 0.6rem; }
+      .categories { gap: 0.25rem; padding-top: 0.5rem; }
+      .pill { padding: 0.35rem 0.6rem; font-size: 0.55rem; }
+      .lang-sep { height: 0.8rem; margin: 0 0.08rem; }
+      .blessing { max-width: 95vw; padding: 0.85rem 0.9rem 0.7rem; border-radius: 10px; }
+      .blessing-text { font-size: 0.92rem; }
+      .voice-badge { font-size: 0.48rem; bottom: 2.4rem; padding: 0.2rem 0.5rem; }
+      .counter { font-size: 0.6rem; bottom: 1rem; }
+      .prompt-icon { font-size: 2.2rem; }
+      .prompt-text { font-size: 0.95rem; }
+    }
+    /* phones */
+    @media (min-width: 361px) and (max-width: 480px) {
+      body::before { opacity: 0.2; }
+      .header { padding: 1rem 1rem 0.4rem; }
+      .categories { gap: 0.3rem; padding-top: 0.6rem; }
+      .pill { padding: 0.3rem 0.7rem; font-size: 0.58rem; }
+      .blessing { max-width: 92vw; padding: 1rem 1.1rem 0.85rem; border-radius: 12px; }
+      .voice-badge { font-size: 0.52rem; bottom: 2.6rem; }
+    }
+    /* tablets */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .header { padding: 1.2rem 1.2rem 0.5rem; }
+      .categories { gap: 0.35rem; }
+      .pill { padding: 0.32rem 0.8rem; font-size: 0.65rem; }
+      .blessing { max-width: min(380px, 88vw); padding: 1.1rem 1.2rem 0.9rem; }
+      .voice-badge { font-size: 0.54rem; bottom: 2.6rem; }
+    }
+    /* landscape phones */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .header { padding: 0.5rem 1rem 0.3rem; }
+      .title { font-size: 1.2rem; }
+      .subtitle { display: none; }
+      .categories { gap: 0.25rem; padding-top: 0.3rem; }
+      .pill { padding: 0.25rem 0.6rem; font-size: 0.55rem; }
+      .prompt-icon { font-size: 1.8rem; }
+      .prompt-text { font-size: 0.9rem; }
+      .blessing { max-width: min(320px, 70vw); padding: 0.7rem 0.9rem 0.6rem; }
+      .blessing-text { font-size: 0.9rem; line-height: 1.4; }
+      .blessing-cat { margin-bottom: 0.35rem; }
+      .blessing-actions { margin-top: 0.5rem; }
+      .voice-badge { bottom: 0.6rem; font-size: 0.48rem; }
+      .counter { bottom: 0.5rem; font-size: 0.6rem; }
+    }
+    /* large desktops */
+    @media (min-width: 1200px) {
+      .blessing { max-width: 400px; }
+      .pill { padding: 0.4rem 1.1rem; }
+    }
+    @media (min-width: 1400px) { .blessing { max-width: 420px; } }
+    /* touch-friendly targets */
+    @media (pointer: coarse) {
+      .pill { min-height: 44px; padding: 0.45rem 0.95rem; }
+      .btn-speak, .btn-dismiss, .btn-record, .btn-rerecord { min-height: 40px; padding: 0.35rem 0.9rem; }
+    }
+    /* disable hover effects on touch */
+    @media (hover: none) {
+      .pill:hover { border-color: var(--card-border); color: var(--text-muted); background: rgba(25,18,40,0.7); }
+      .pill.active:hover { border-color: var(--gold); color: var(--gold); background: rgba(232,185,48,0.12); }
+      .btn-speak:hover, .btn-record:hover, .btn-dismiss:hover, .btn-rerecord:hover {
+        background: inherit; border-color: inherit; box-shadow: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      #trailCanvas, .heart-trail, .heart-glow { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <header class="header" role="banner">
+    <h1 class="title">Blessing <span>Generator</span></h1>
+    <p class="subtitle">Tap anywhere to receive a blessing</p>
+    <nav class="categories" role="navigation" aria-label="Blessing categories">
+      <button class="pill active" data-cat="all" aria-pressed="true">All</button>
+      <button class="pill" data-cat="birthday" aria-pressed="false">Birthday</button>
+      <button class="pill" data-cat="happy" aria-pressed="false">Joyful</button>
+      <button class="pill" data-cat="sad" aria-pressed="false">Comfort</button>
+      <button class="pill" data-cat="encouraging" aria-pressed="false">Strength</button>
+      <button class="pill" data-cat="luck" aria-pressed="false">Fortune</button>
+      <span class="lang-sep" aria-hidden="true"></span>
+      <button class="pill lang-pill active" data-lang="en" aria-pressed="true" aria-label="English voice">EN</button>
+      <button class="pill lang-pill" data-lang="zh" aria-pressed="false" aria-label="Chinese voice">中文</button>
+      <button class="pill lang-pill" data-lang="ja" aria-pressed="false" aria-label="Japanese voice">日本語</button>
+      <button class="pill lang-pill" data-lang="de" aria-pressed="false" aria-label="German voice">DE</button>
+    </nav>
+  </header>
+
+  <div class="prompt" id="prompt" aria-hidden="true">
+    <div class="prompt-icon">&#10022;</div>
+    <p class="prompt-text">Tap anywhere to begin</p>
+  </div>
+
+  <canvas id="trailCanvas" aria-hidden="true"></canvas>
+
+  <div class="voice-badge" id="voiceBadge" aria-live="polite">
+    <span class="v-dot" id="voiceDot"></span>
+    <span id="voiceName">Detecting voices...</span>
+  </div>
+
+  <div class="counter" aria-live="polite">
+    Blessings shared: <strong id="count">0</strong>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ================================================================
+       SVG ICONS
+       ================================================================ */
+    var SVG = {
+      mic:     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>',
+      speaker: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>',
+      play:    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
+      stop:    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>',
+      redo:    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>'
+    };
+
+    /* ================================================================
+       BLESSING DATA — EN / ZH / JA / DE
+       ================================================================ */
+    var BLESSINGS = {
+      en: {
+        birthday: [
+          "May this year bring you more joy, than you ever imagined.",
+          "Another trip around the sun, may it be your brightest one yet.",
+          "Wishing you a day filled with love, laughter, and all the cake you can eat.",
+          "May your birthday be the beginning, of a year full of happy memories.",
+          "Here's to another wonderful year of you. Cheers!",
+          "May every candle on your cake, light up a brand-new wish."
+        ],
+        happy: [
+          "Your joy is contagious. Never stop spreading that light.",
+          "Happiness looks beautiful on you. Wear it proudly.",
+          "May your smile today, be the reason someone else smiles too.",
+          "Bask in this moment. You have earned every bit of this glow.",
+          "The world is a little brighter, because of your happiness.",
+          "Let your laughter ring out, and chase away every shadow."
+        ],
+        sad: [
+          "Even the darkest night will end... and the sun will rise again.",
+          "It is okay to not be okay. Tomorrow holds a gentle, new beginning.",
+          "You are braver than you believe... and stronger than you seem.",
+          "This too shall pass. Hold on. Brighter days are drawing near.",
+          "Your tears are not weakness. They are proof... of your courage.",
+          "The rain today, is watering the flowers of tomorrow."
+        ],
+        encouraging: [
+          "You are so much closer, to your dreams than you think.",
+          "Every step forward, no matter how small, is still progress.",
+          "Believe in yourself. The universe is already rooting for you.",
+          "Your potential is limitless. Keep reaching. Keep pushing.",
+          "The only impossible journey, is the one you never begin.",
+          "You have survived every single one of your worst days. Keep going."
+        ],
+        luck: [
+          "May fortune smile upon you... today and always.",
+          "Luck is preparation meeting opportunity. And you are ready.",
+          "The stars are aligning gently, in your favor. Trust the path.",
+          "May serendipity find you, at every corner today.",
+          "Wonderful things are headed your way. Can you feel it?",
+          "May your path be lit, with golden, unexpected opportunities."
+        ]
+      },
+      zh: {
+        birthday: [
+          "愿这一年带给你比你想象中更多的快乐。",
+          "又绕太阳一圈，愿这是你最灿烂的一年。",
+          "祝你拥有充满爱、欢笑和尽情享用蛋糕的一天。",
+          "愿你的生日成为充满美好回忆的一年的开始。",
+          "为你又一个精彩的一年干杯！",
+          "愿蛋糕上的每一根蜡烛，都点亮一个崭新的愿望。"
+        ],
+        happy: [
+          "你的快乐具有感染力，永远不要停止传递这份光芒。",
+          "幸福在你身上如此美丽，骄傲地拥抱它吧。",
+          "愿你今天的微笑，也成为他人微笑的理由。",
+          "尽情享受这一刻，这份光芒是你应得的。",
+          "因为你的快乐，世界变得更加明亮。",
+          "让你的笑声回荡，驱散每一个阴影。"
+        ],
+        sad: [
+          "即使最黑暗的夜晚也会结束……太阳终将再次升起。",
+          "不开心没关系，明天会有温柔的新开始。",
+          "你比自己相信的更勇敢……比看起来的更坚强。",
+          "一切都会过去的，坚持住，更美好的日子正在靠近。",
+          "你的眼泪不是软弱，而是你勇气的证明。",
+          "今天的雨水，正在浇灌明天的花朵。"
+        ],
+        encouraging: [
+          "你离梦想的距离，比你想象的更近。",
+          "每一步前进，无论多小，都是进步。",
+          "相信自己，整个宇宙都在为你加油。",
+          "你的潜力无限，继续前进，继续努力。",
+          "唯一不可能的旅程，是你从未开始的那一段。",
+          "你已经度过了每一个最艰难的日子，继续前行。"
+        ],
+        luck: [
+          "愿幸运对你微笑……今天，以及永远。",
+          "幸运是准备遇见机遇，而你已经准备好了。",
+          "星辰正温柔地为你排列，相信这条路。",
+          "愿意外的惊喜在今天的每个转角等着你。",
+          "美好的事物正朝你走来，你感受到了吗？",
+          "愿你的道路被金色的、意想不到的机会照亮。"
+        ]
+      },
+      ja: {
+        birthday: [
+          "この一年があなたの想像以上の喜びに満ちますように。",
+          "もう一度太陽の周りを旅しました。これまでで最も輝かしい一年になりますように。",
+          "愛と笑い声と好きなだけのお菓子に囲まれた一日になりますように。",
+          "あなたの誕生日が、幸せな思い出に満ちた一年の始まりになりますように。",
+          "あなたの素晴らしいもう一年に、乾杯！",
+          "ケーキのろうそくすべてが、新しい願いを灯しますように。"
+        ],
+        happy: [
+          "あなたの喜びは伝染します。その光を届けることをやめないで。",
+          "幸せがあなたにとても似合っています。誇らしく身につけて。",
+          "今日のあなたの笑顔が、他の誰かの笑顔の理由になりますように。",
+          "この瞬間を味わって。この輝きはあなたが勝ち取ったもの。",
+          "あなたの幸せで、世界は少しだけ明るくなります。",
+          "笑い声を響かせて、すべての影を追い払いましょう。"
+        ],
+        sad: [
+          "最も暗い夜も終わります……太陽は再び昇ります。",
+          "大丈夫でなくても大丈夫です。明日は穏やかな新しい始まりがあります。",
+          "あなたは自分が思っているより勇敢で……見た目よりずっと強い。",
+          "これも過ぎ去ります。頑張って。明るい日が近づいています。",
+          "あなたの涙は弱さではありません。それはあなたの勇気の証。",
+          "今日の雨は、明日の花を育てています。"
+        ],
+        encouraging: [
+          "あなたは夢に、思っているよりもずっと近づいています。",
+          "前に進む一歩は、どんなに小さくても進歩です。",
+          "自分を信じて。宇宙はすでにあなたを応援しています。",
+          "あなたの可能性は無限大。伸ばし続けて。頑張り続けて。",
+          "不可能な旅は、決して始めなかった旅だけです。",
+          "あなたはこれまでのすべての最悪の日を乗り越えてきました。続けましょう。"
+        ],
+        luck: [
+          "幸運があなたに微笑みますように……今日も、いつもも。",
+          "幸運とは準備が機会に出会うこと。あなたは準備ができています。",
+          "星々が優しくあなたの味方をしています。その道を信じて。",
+          "偶然の幸せが、今日のあらゆる角であなたを見つけられますように。",
+          "素晴らしいことがあなたに向かっています。感じられますか？",
+          "あなたの道が、金色の予想外の機会に照らされますように。"
+        ]
+      },
+      de: {
+        birthday: [
+          "Möge dieses Jahr dir mehr Freude bringen, als du dir je vorgestellt hast.",
+          "Noch eine Reise um die Sonne – möge es deine hellste sein.",
+          "Ich wünsche dir einen Tag voller Liebe, Lachen und so viel Kuchen du nur essen kannst.",
+          "Möge dein Geburtstag der Anfang eines Jahres voller glücklicher Erinnerungen sein.",
+          "Auf ein weiteres wundervolles Jahr von dir. Prost!",
+          "Möge jede Kerze auf deiner Torte einen brandneuen Wunsch entzünden."
+        ],
+        happy: [
+          "Deine Freude ist ansteckend. Hör nie auf, dieses Licht zu verbreiten.",
+          "Glück steht dir wunderschön. Trage es mit Stolz.",
+          "Möge dein Lächeln heute der Grund sein, warum jemand anderes auch lächelt.",
+          "Genieße diesen Moment. Du hast jedes Bisschen dieses Glücks verdient.",
+          "Die Welt ist ein wenig heller, weil du glücklich bist.",
+          "Lass dein Lachen erklingen und jeden Schatten vertreiben."
+        ],
+        sad: [
+          "Auch die dunkelste Nacht endet... und die Sonne wird wieder aufgehen.",
+          "Es ist in Ordnung, nicht in Ordnung zu sein. Morgen hält einen sanften neuen Anfang bereit.",
+          "Du bist mutiger, als du glaubst... und stärker, als du scheinst.",
+          "Auch das wird vorübergehen. Halte durch. Hellere Tage sind nah.",
+          "Deine Tränen sind keine Schwäche. Sie sind ein Beweis... deines Mutes.",
+          "Der Regen heute bewässert die Blumen von morgen."
+        ],
+        encouraging: [
+          "Du bist deinen Träumen viel näher, als du denkst.",
+          "Jeder Schritt vorwärts, egal wie klein, ist immer noch ein Fortschritt.",
+          "Glaube an dich selbst. Das Universum fiebert bereits für dich.",
+          "Dein Potenzial ist grenzenlos. Strecke dich weiter. Dränge weiter.",
+          "Die einzige unmögliche Reise ist die, die du nie beginnst.",
+          "Du hast jeden einzelnen deiner schlimmsten Tage überlebt. Mach weiter."
+        ],
+        luck: [
+          "Möge das Glück dir zulächeln... heute und immer.",
+          "Glück ist, wenn Vorbereitung auf Gelegenheit trifft. Und du bist bereit.",
+          "Die Sterne fügen sich sanft zu deinen Gunsten. Vertraue dem Weg.",
+          "Möge der Zufall dich an jeder Ecke heute finden.",
+          "Wunderbare Dinge sind auf dem Weg zu dir. Kannst du es spüren?",
+          "Möge dein Weg erleuchtet sein mit goldenen, unerwarteten Gelegenheiten."
+        ]
+      }
+    };
+
+    /* ================================================================
+       LABELS & UI STRINGS
+       ================================================================ */
+    var LABELS = {
+      en: { birthday:'Birthday', happy:'Joy', sad:'Comfort', encouraging:'Strength', luck:'Good Fortune' },
+      zh: { birthday:'生日', happy:'喜悦', sad:'慰藉', encouraging:'力量', luck:'好运' },
+      ja: { birthday:'お誕生日', happy:'喜び', sad:'慰め', encouraging:'勇気', luck:'幸運' },
+      de: { birthday:'Geburtstag', happy:'Freude', sad:'Trost', encouraging:'Stärke', luck:'Glück' }
+    };
+
+    var UI = {
+      en: { speak:'Speak', close:'Close', speaking:'Speaking...', newBless:'New blessing: ' },
+      zh: { speak:'朗读', close:'关闭', speaking:'朗读中...', newBless:'新祝福：',
+            rec:'录音', stop:'停止', cancel:'取消', play:'播放', redo:'重录', sys:'系统语音', retry:'重试',
+            errPerm:'麦克风权限被拒绝，请允许访问权限后重试', errMic:'未检测到麦克风设备', errRec:'录音失败，请重试' },
+      ja: { speak:'話す', close:'閉じる', speaking:'話しています...', newBless:'新しい祝福： ' },
+      de: { speak:'Sprechen', close:'Schließen', speaking:'Wird gesprochen...', newBless:'Neuer Segen: ' }
+    };
+
+    /* ================================================================
+       MOOD-ADAPTIVE SPEECH PARAMETERS
+       English/Japanese/German rate raised for faster playback.
+       Chinese remains unchanged.
+       ================================================================ */
+    var MOOD = {
+      en: {
+        birthday:    { rate:1.18, pitch:1.10, vol:0.95, pauseMid:10,  pauseEnd:30  },
+        happy:       { rate:1.25, pitch:1.16, vol:0.96, pauseMid:5,   pauseEnd:20  },
+        sad:         { rate:1.02, pitch:0.82, vol:0.78, pauseMid:50,  pauseEnd:80  },
+        encouraging: { rate:1.16, pitch:1.06, vol:0.95, pauseMid:12,  pauseEnd:35  },
+        luck:        { rate:1.14, pitch:1.08, vol:0.90, pauseMid:15,  pauseEnd:40  }
+      },
+      zh: {
+        birthday:    { rate:1.00, pitch:1.08, vol:0.95, pauseMid:10,  pauseEnd:35  },
+        happy:       { rate:1.05, pitch:1.13, vol:0.95, pauseMid:5,   pauseEnd:25  },
+        sad:         { rate:0.90, pitch:0.86, vol:0.80, pauseMid:55,  pauseEnd:85  },
+        encouraging: { rate:0.98, pitch:1.04, vol:0.95, pauseMid:15,  pauseEnd:40  },
+        luck:        { rate:0.96, pitch:1.06, vol:0.90, pauseMid:15,  pauseEnd:40  }
+      },
+      ja: {
+        birthday:    { rate:1.16, pitch:1.10, vol:0.95, pauseMid:10,  pauseEnd:35  },
+        happy:       { rate:1.20, pitch:1.14, vol:0.96, pauseMid:5,   pauseEnd:25  },
+        sad:         { rate:1.00, pitch:0.85, vol:0.78, pauseMid:50,  pauseEnd:85  },
+        encouraging: { rate:1.12, pitch:1.05, vol:0.95, pauseMid:15,  pauseEnd:40  },
+        luck:        { rate:1.10, pitch:1.08, vol:0.90, pauseMid:18,  pauseEnd:45  }
+      },
+      de: {
+        birthday:    { rate:1.18, pitch:1.08, vol:0.95, pauseMid:10,  pauseEnd:35  },
+        happy:       { rate:1.24, pitch:1.14, vol:0.96, pauseMid:5,   pauseEnd:20  },
+        sad:         { rate:1.02, pitch:0.82, vol:0.78, pauseMid:50,  pauseEnd:80  },
+        encouraging: { rate:1.16, pitch:1.05, vol:0.95, pauseMid:12,  pauseEnd:35  },
+        luck:        { rate:1.14, pitch:1.07, vol:0.90, pauseMid:15,  pauseEnd:40  }
+      }
+    };
+
+    /* ================================================================
+       VOICE SELECTION ENGINE
+       ================================================================ */
+    var FEMALE_HINTS = [
+      'samantha','karen','moira','tessa','fiona','victoria','susan',
+      'zira','hazel','helena','catherine','julie','eva','maria',
+      'google uk english female','google us english','google australian',
+      'kyoko','haruka','mizuki','ting-ting','mei-jia','sin-ji',
+      'google 國語','google 廣東話','google 普通话','google 日本語',
+      'microsoft huihui','microsoft yaoyao','microsoft haruka',
+      'anna','petra','katja','hedda','google deutsch','microsoft hedda','microsoft katja'
+    ];
+    var MALE_HINTS = [
+      'daniel','tom','otoya','male','david','mark','kangkang','ichiro',
+      'microsoft david','microsoft mark','google uk english male',
+      'stefan','microsoft stefan','markus'
+    ];
+
+    function scoreVoice(voice, targetLang) {
+      var s = 0, name = voice.name.toLowerCase(), lang = voice.lang.toLowerCase();
+      if (lang === targetLang) s += 10;
+      else if (lang.indexOf(targetLang.split('-')[0]) === 0) s += 6;
+      else return -1;
+      for (var i = 0; i < FEMALE_HINTS.length; i++) { if (name.indexOf(FEMALE_HINTS[i]) > -1) { s += 20; break; } }
+      if (name.indexOf('female') > -1) s += 15;
+      for (var j = 0; j < MALE_HINTS.length; j++) { if (name.indexOf(MALE_HINTS[j]) > -1) { s -= 15; break; } }
+      if (name.indexOf('google') > -1)   s += 12;
+      if (name.indexOf('enhanced') > -1) s += 10;
+      if (name.indexOf('premium') > -1)  s += 10;
+      if (name.indexOf('natural') > -1)  s += 9;
+      if (name.indexOf('neural') > -1)   s += 9;
+      if (name.indexOf('wavenet') > -1)  s += 8;
+      if (!voice.localService)           s += 5;
+      return s;
+    }
+
+    function getBestVoice(langCode) {
+      try {
+        var voices = window.speechSynthesis.getVoices();
+        if (!voices || !voices.length) return null;
+        var best = null, bestScore = -1;
+        for (var i = 0; i < voices.length; i++) {
+          var sc = scoreVoice(voices[i], langCode);
+          if (sc > bestScore) { bestScore = sc; best = voices[i]; }
+        }
+        return best;
+      } catch(e) { return null; }
+    }
+
+    /* ================================================================
+       STATE
+       ================================================================ */
+    var activeCategory = 'all';
+    var speechLang     = 'en';
+    var blessingCount  = 0;
+    var activeCards    = [];
+    var MAX_CARDS      = 6;
+
+    var promptEl        = document.getElementById('prompt');
+    var liveEl          = document.getElementById('live');
+    var countEl         = document.getElementById('count');
+    var voiceNameEl     = document.getElementById('voiceName');
+    var voiceDotEl      = document.getElementById('voiceDot');
+    var speechSupported = 'speechSynthesis' in window;
+
+    var bestVoices = { en: null, zh: null, ja: null, de: null };
+    var voicesReady = false;
+    var speechGen   = 0;
+
+    /* ================================================================
+       WAV ENCODER (cross-browser recording fallback)
+       ================================================================ */
+    function writeWavString(view, offset, str) {
+      for (var i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+    }
+
+    function encodeWav(samples, sampleRate) {
+      var buf = new ArrayBuffer(44 + samples.length * 2);
+      var v = new DataView(buf);
+      writeWavString(v, 0, 'RIFF');
+      v.setUint32(4, 36 + samples.length * 2, true);
+      writeWavString(v, 8, 'WAVE');
+      writeWavString(v, 12, 'fmt ');
+      v.setUint32(16, 16, true);
+      v.setUint16(20, 1, true);
+      v.setUint16(22, 1, true);
+      v.setUint32(24, sampleRate, true);
+      v.setUint32(28, sampleRate * 2, true);
+      v.setUint16(32, 2, true);
+      v.setUint16(34, 16, true);
+      writeWavString(v, 36, 'data');
+      v.setUint32(40, samples.length * 2, true);
+      for (var i = 0; i < samples.length; i++) {
+        var s = Math.max(-1, Math.min(1, samples[i]));
+        v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+      return new Blob([buf], { type: 'audio/wav' });
+    }
+
+    /* ================================================================
+       RECORDING ENGINE (MediaRecorder + WAV fallback)
+       Only for Chinese (zh). German uses TTS only.
+       ================================================================ */
+    var REC_MR_SUPPORTED = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+    var REC_WAV_SUPPORTED = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && (window.AudioContext || window.webkitAudioContext));
+    var REC_SUPPORTED = REC_MR_SUPPORTED || REC_WAV_SUPPORTED;
+    var recordings = new Map();
+
+    function getRecMime() {
+      if (!window.MediaRecorder) return '';
+      var types = [
+        'audio/webm;codecs=opus', 'audio/webm',
+        'audio/ogg;codecs=opus', 'audio/ogg',
+        'audio/mp4', 'audio/aac'
+      ];
+      for (var i = 0; i < types.length; i++) {
+        try { if (MediaRecorder.isTypeSupported(types[i])) return types[i]; } catch(e){}
+      }
+      return '';
+    }
+
+    function cleanupRec(card) {
+      var r = recordings.get(card);
+      if (!r) return;
+      if (r.timerIv) clearInterval(r.timerIv);
+      if (r.maxTimer) clearTimeout(r.maxTimer);
+      if (r.rec && r.rec.state !== 'inactive') { try { r.rec.stop(); } catch(e){} }
+      if (r.wavProcessor) { try { r.wavProcessor.disconnect(); } catch(e){} }
+      if (r.wavSource) { try { r.wavSource.disconnect(); } catch(e){} }
+      if (r.wavCtx) { try { r.wavCtx.close(); } catch(e){} }
+      if (r.stream) r.stream.getTracks().forEach(function(t){ t.stop(); });
+      if (r.audio) { r.audio.pause(); r.audio.src = ''; r.audio = null; }
+      if (r.url) { try { URL.revokeObjectURL(r.url); } catch(e){} r.url = null; }
+      r.blob = null;
+      recordings.delete(card);
+    }
+
+    function startRec(card) {
+      cleanupRec(card);
+      recordings.set(card, { state:'requesting' });
+
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          if (REC_MR_SUPPORTED) {
+            tryMediaRecorder(card, stream);
+          } else {
+            startWavRec(card, stream);
+          }
+        })
+        .catch(function(err) {
+          var type = (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') ? 'mic' : 'perm';
+          renderRecErr(card, type);
+        });
+    }
+
+    function tryMediaRecorder(card, stream) {
+      var mime = getRecMime(), rec;
+      try { rec = new MediaRecorder(stream, mime ? {mimeType:mime} : {}); }
+      catch(e) { try { rec = new MediaRecorder(stream); } catch(e2) {
+        stream.getTracks().forEach(function(t){t.stop();});
+        if (REC_WAV_SUPPORTED) {
+          navigator.mediaDevices.getUserMedia({ audio: true }).then(function(s){ startWavRec(card, s); })
+            .catch(function(){ renderRecErr(card,'rec'); });
+        } else {
+          renderRecErr(card,'rec');
+        }
+        return;
+      }}
+
+      var chunks = [];
+      rec.ondataavailable = function(e) { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      rec.onstop = function() {
+        stream.getTracks().forEach(function(t){ t.stop(); });
+        var r = recordings.get(card);
+        if (!r || r.state === 'cancelled') return;
+        var blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
+        if (blob.size < 100) { renderRecErr(card,'rec'); return; }
+        r.blob = blob; r.url = URL.createObjectURL(blob); r.stream = null; r.rec = null; r.state = 'recorded';
+        renderRecDone(card);
+      };
+      rec.onerror = function() { stream.getTracks().forEach(function(t){t.stop();}); renderRecErr(card,'rec'); };
+
+      recordings.set(card, { rec:rec, stream:stream, chunks:chunks, blob:null, url:null, audio:null, timerIv:null, maxTimer:null, state:'recording', engine:'mr' });
+      rec.start(100);
+      renderRecActive(card);
+    }
+
+    function startWavRec(card, stream) {
+      try {
+        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var source = audioCtx.createMediaStreamSource(stream);
+        var processor = audioCtx.createScriptProcessor(4096, 1, 1);
+        var silentGain = audioCtx.createGain();
+        silentGain.gain.value = 0;
+        var chunks = [];
+        var sampleRate = audioCtx.sampleRate;
+
+        processor.onaudioprocess = function(e) {
+          var data = e.inputBuffer.getChannelData(0);
+          chunks.push(new Float32Array(data));
+        };
+
+        source.connect(processor);
+        processor.connect(silentGain);
+        silentGain.connect(audioCtx.destination);
+
+        recordings.set(card, {
+          rec:null, stream:stream, chunks:chunks, blob:null, url:null, audio:null,
+          timerIv:null, maxTimer:null, state:'recording', engine:'wav',
+          wavCtx:audioCtx, wavSource:source, wavProcessor:processor, sampleRate:sampleRate
+        });
+        renderRecActive(card);
+      } catch(e) {
+        stream.getTracks().forEach(function(t){ t.stop(); });
+        renderRecErr(card, 'rec');
+      }
+    }
+
+    function stopRec(card) {
+      var r = recordings.get(card);
+      if (!r) return;
+      if (r.timerIv) { clearInterval(r.timerIv); r.timerIv = null; }
+      if (r.maxTimer) { clearTimeout(r.maxTimer); r.maxTimer = null; }
+
+      if (r.engine === 'wav') {
+        stopWavRec(card);
+      } else if (r.rec && r.rec.state !== 'inactive') {
+        r.rec.stop();
+      }
+    }
+
+    function stopWavRec(card) {
+      var r = recordings.get(card);
+      if (!r || r.engine !== 'wav') return;
+
+      try { r.wavProcessor.disconnect(); r.wavSource.disconnect(); r.wavCtx.close(); } catch(e){}
+
+      var length = 0;
+      for (var i = 0; i < r.chunks.length; i++) length += r.chunks[i].length;
+      if (length === 0) { r.stream.getTracks().forEach(function(t){t.stop();}); renderRecErr(card,'rec'); return; }
+
+      var buffer = new Float32Array(length);
+      var offset = 0;
+      for (var i = 0; i < r.chunks.length; i++) {
+        buffer.set(r.chunks[i], offset);
+        offset += r.chunks[i].length;
+      }
+
+      var wavBlob = encodeWav(buffer, r.sampleRate);
+      r.stream.getTracks().forEach(function(t){ t.stop(); });
+      r.blob = wavBlob; r.url = URL.createObjectURL(wavBlob); r.stream = null; r.wavCtx = null; r.wavSource = null; r.wavProcessor = null;
+      r.state = 'recorded';
+      renderRecDone(card);
+    }
+
+    function cancelRec(card) {
+      var r = recordings.get(card);
+      if (r) r.state = 'cancelled';
+      cleanupRec(card);
+      renderRecIdle(card);
+    }
+
+    function playRec(card) {
+      var r = recordings.get(card);
+      if (!r || !r.url) return;
+      if (r.audio) { r.audio.pause(); r.audio.src = ''; r.audio = null; }
+
+      var audio = new Audio();
+      audio.preload = 'auto';
+      r.audio = audio;
+      r.state = 'playing';
+      renderRecPlaying(card);
+
+      function onDone() {
+        var r2 = recordings.get(card);
+        if (r2) { r2.audio = null; r2.state = 'recorded'; }
+        renderRecDone(card);
+      }
+
+      function onError() {
+        var r2 = recordings.get(card);
+        if (!r2 || !r2.blob) { onDone(); return; }
+        try {
+          var reader = new FileReader();
+          reader.onloadend = function() {
+            audio.src = reader.result;
+            audio.play().catch(function(){ onDone(); });
+          };
+          reader.onerror = function() { onDone(); };
+          reader.readAsDataURL(r2.blob);
+          return;
+        } catch(e2) { onDone(); }
+      }
+
+      audio.addEventListener('ended', function(){ onDone(); });
+      audio.addEventListener('error', function(){ onError(); });
+
+      audio.src = r.url;
+      var pp = audio.play();
+      if (pp !== undefined && typeof pp.catch === 'function') {
+        pp.catch(function() { onError(); });
+      }
+    }
+
+    function stopPlayRec(card) {
+      var r = recordings.get(card);
+      if (!r || !r.audio) return;
+      r.audio.pause(); r.audio.currentTime = 0; r.audio.src = ''; r.audio = null; r.state = 'recorded';
+      renderRecDone(card);
+    }
+
+    /* ---- Recording UI Renderers ---- */
+    function getActions(card) { return card.querySelector('.blessing-actions'); }
+
+    function mkBtn(cls, svg, label, aria) {
+      var b = document.createElement('button');
+      b.className = cls;
+      b.setAttribute('aria-label', aria || label);
+      b.setAttribute('title', aria || label);
+      b.innerHTML = svg + '<span' + (cls === 'btn-speak' ? ' class="speak-label"' : '') + '>' + label + '</span>';
+      return b;
+    }
+
+    function addCloseBtn(actions, card) {
+      var cb = mkBtn('btn-dismiss', '', UI[speechLang].close);
+      cb.addEventListener('click', function(e){ e.stopPropagation(); dismissCard(card); });
+      actions.appendChild(cb);
+    }
+
+    function renderRecIdle(card) {
+      var a = getActions(card); if (!a) return; a.innerHTML = '';
+      var rb = mkBtn('btn-record', SVG.mic, UI.zh.rec);
+      rb.addEventListener('click', function(e){ e.stopPropagation(); startRec(card); });
+      a.appendChild(rb);
+      addCloseBtn(a, card);
+    }
+
+    function renderRecActive(card) {
+      var a = getActions(card); if (!a) return; a.innerHTML = '';
+      var btn = mkBtn('btn-record recording', '', '');
+      var dot = document.createElement('span'); dot.className = 'rec-dot'; dot.setAttribute('aria-hidden','true');
+      var tmr = document.createElement('span'); tmr.className = 'rec-timer'; tmr.textContent = '0:00'; tmr.setAttribute('aria-hidden','true');
+      var lbl = document.createElement('span'); lbl.textContent = UI.zh.stop;
+      btn.appendChild(dot); btn.appendChild(tmr); btn.appendChild(lbl);
+
+      var t0 = Date.now();
+      var iv = setInterval(function(){
+        var s = Math.floor((Date.now()-t0)/1000);
+        tmr.textContent = Math.floor(s/60) + ':' + (s%60<10?'0':'') + s%60;
+      }, 1000);
+      var mt = setTimeout(function(){ stopRec(card); }, 60000);
+      var r = recordings.get(card); if (r){r.timerIv=iv;r.maxTimer=mt;}
+
+      btn.addEventListener('click', function(e){ e.stopPropagation(); stopRec(card); });
+      a.appendChild(btn);
+
+      var cb = mkBtn('btn-dismiss', '', UI.zh.cancel);
+      cb.addEventListener('click', function(e){ e.stopPropagation(); cancelRec(card); });
+      a.appendChild(cb);
+    }
+
+    function renderRecDone(card) {
+      var a = getActions(card); if (!a) return; a.innerHTML = '';
+      var pb = mkBtn('btn-speak', SVG.play, UI.zh.play);
+      pb.addEventListener('click', function(e){ e.stopPropagation(); playRec(card); });
+      a.appendChild(pb);
+
+      var rb = mkBtn('btn-rerecord', SVG.redo, UI.zh.redo);
+      rb.addEventListener('click', function(e){ e.stopPropagation(); cleanupRec(card); startRec(card); });
+      a.appendChild(rb);
+      addCloseBtn(a, card);
+    }
+
+    function renderRecPlaying(card) {
+      var a = getActions(card); if (!a) return; a.innerHTML = '';
+      var sb = mkBtn('btn-speak', SVG.stop, UI.zh.stop);
+      sb.addEventListener('click', function(e){ e.stopPropagation(); stopPlayRec(card); });
+      a.appendChild(sb);
+
+      var rb = mkBtn('btn-rerecord', SVG.redo, UI.zh.redo);
+      rb.addEventListener('click', function(e){ e.stopPropagation(); stopPlayRec(card); cleanupRec(card); startRec(card); });
+      a.appendChild(rb);
+      addCloseBtn(a, card);
+    }
+
+    function renderRecErr(card, type) {
+      var a = getActions(card); if (!a) return; a.innerHTML = '';
+      var err = document.createElement('div'); err.className = 'record-error'; err.setAttribute('role','alert');
+      err.textContent = ({perm:UI.zh.errPerm, mic:UI.zh.errMic, rec:UI.zh.errRec})[type] || UI.zh.errRec;
+      a.appendChild(err);
+
+      var rb = mkBtn('btn-record', SVG.mic, UI.zh.retry);
+      rb.addEventListener('click', function(e){ e.stopPropagation(); startRec(card); });
+      a.appendChild(rb);
+
+      if (speechSupported) {
+        var tb = mkBtn('btn-speak', SVG.speaker, UI.zh.sys);
+        tb.addEventListener('click', (function(c){
+          return function(e){ e.stopPropagation();
+            var txt = c.querySelector('.blessing-text').textContent;
+            var cat = c.getAttribute('data-category');
+            speakEmotionally(txt, cat, tb);
+          };
+        })(card));
+        a.appendChild(tb);
+      }
+      addCloseBtn(a, card);
+    }
+
+    /* ================================================================
+       VOICE INIT
+       ================================================================ */
+    function initVoices() {
+      bestVoices.en = getBestVoice('en-US') || getBestVoice('en');
+      bestVoices.zh = getBestVoice('zh-CN') || getBestVoice('zh');
+      bestVoices.ja = getBestVoice('ja-JP') || getBestVoice('ja');
+      bestVoices.de = getBestVoice('de-DE') || getBestVoice('de');
+      voicesReady = !!(bestVoices.en || bestVoices.zh || bestVoices.ja || bestVoices.de);
+      updateBadge();
+    }
+    function updateBadge() {
+      var v = bestVoices[speechLang];
+      if (v) { voiceNameEl.textContent = v.name + (v.localService?'':' (cloud)'); voiceDotEl.className = 'v-dot ok'; }
+      else {
+        var msgs = {en:'No English voice', zh:'未找到中文语音', ja:'日本語の音声が見つかりません', de:'Keine deutsche Stimme gefunden'};
+        voiceNameEl.textContent = msgs[speechLang] || 'Voice not found';
+        voiceDotEl.className = 'v-dot warn';
+      }
+    }
+    if (speechSupported) {
+      initVoices();
+      var _voicesHandler = function(){ initVoices(); if(voicesReady) window.speechSynthesis.removeEventListener('voiceschanged',_voicesHandler); };
+      window.speechSynthesis.addEventListener('voiceschanged', _voicesHandler);
+      var _p=0,_pid=setInterval(function(){_p++;if(voicesReady||_p>20){clearInterval(_pid);_pid=null;return;}initVoices();},500);
+    } else { voiceNameEl.textContent = 'Speech not supported'; voiceDotEl.className = 'v-dot warn'; }
+
+    /* ================================================================
+       EMOTIONAL TTS ENGINE
+       ================================================================ */
+    function getProsody(cat, pos, total) {
+      var t = total > 1 ? pos/(total-1) : 0.5;
+      var r = (Math.random()-0.5)*0.03;
+      switch(cat) {
+        case 'happy':       return { pMul: 1.0+0.10*Math.sin(t*Math.PI)+r,         rMul: 1.0+0.04*Math.sin(t*Math.PI*0.8) };
+        case 'sad':         return { pMul: 1.0-0.12*t+r,                             rMul: 1.0-0.06*t };
+        case 'encouraging': return { pMul: 0.95+0.15*t+r,                            rMul: 0.97+0.06*t };
+        case 'birthday':    return { pMul: 1.0+0.07*Math.sin(t*Math.PI*1.2)+r,      rMul: 1.0+0.02*Math.sin(t*Math.PI) };
+        case 'luck':        return { pMul: 1.0+0.06*Math.sin(t*Math.PI*1.5)+r,      rMul: 0.98+0.03*Math.sin(t*Math.PI) };
+        default:            return { pMul: 1.0, rMul: 1.0 };
+      }
+    }
+
+    function splitSpeech(text, lang) {
+      var useLatin = (lang === 'en' || lang === 'de');
+      var raw = useLatin ? text.split(/([,.\u2026;:!?]+)/) : text.split(/([\u3001\u3002\uff01\uff1f]+)/);
+      var isP = useLatin ? /^[,.\u2026;:!?]+$/ : /^[\u3001\u3002\uff01\uff1f]+$/;
+      var parts = [];
+      for (var i = 0; i < raw.length; i++) {
+        if (!raw[i] || !raw[i].trim()) continue;
+        if (isP.test(raw[i])) { if (parts.length) parts[parts.length-1] += raw[i]; }
+        else parts.push(raw[i].trim());
+      }
+      return parts.filter(function(s){return s.length>0;});
+    }
+
+    var resumeTm = null;
+    function speakEmotionally(text, category, btn) {
+      if (!speechSupported) return;
+      window.speechSynthesis.cancel();
+      speechGen++;
+      var myGen = speechGen;
+
+      var voice = bestVoices[speechLang];
+      if (!voice) { var fb = window.speechSynthesis.getVoices(); if (fb.length) voice = fb[0]; else return; }
+
+      var params = MOOD[speechLang][category] || MOOD[speechLang].luck;
+      var segs = splitSpeech(text, speechLang);
+      var n = segs.length, ui = UI[speechLang];
+
+      var plan = [];
+      for (var i = 0; i < n; i++) {
+        var pc = getProsody(category, i, n);
+        plan.push({
+          text: segs[i],
+          rate: Math.max(0.5,Math.min(2, params.rate*pc.rMul + (Math.random()-0.5)*0.02)),
+          pitch: Math.max(0,Math.min(2, params.pitch*pc.pMul + (Math.random()-0.5)*0.02)),
+          vol: Math.max(0,Math.min(1, params.vol)),
+          pause: (i === n-1) ? 0 : params.pauseMid
+        });
+      }
+      for (var j = 0; j < plan.length-1; j++) {
+        if (/[.!?\u2026\u3002\uff01\uff1f]$/.test(segs[j])) plan[j].pause = params.pauseEnd;
+      }
+
+      var label = btn ? btn.querySelector('.speak-label') : null;
+      if (label) label.textContent = ui.speaking;
+      if (btn) btn.disabled = true;
+
+      clearInterval(resumeTm);
+      resumeTm = setInterval(function(){ if(window.speechSynthesis.speaking&&window.speechSynthesis.paused) window.speechSynthesis.resume(); }, 800);
+
+      var idx = 0;
+      function next() {
+        if (myGen !== speechGen || idx >= plan.length) { cleanup(); return; }
+        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+        var p = plan[idx], u = new SpeechSynthesisUtterance(p.text);
+        u.voice = voice; u.rate = p.rate; u.pitch = p.pitch; u.volume = p.vol;
+        var done = false;
+        var to = setTimeout(function(){ if(!done){done=true;idx++;next();} }, 25000);
+        u.onend = function(){ if(done)return;done=true;clearTimeout(to);idx++; if(p.pause>0)setTimeout(next,p.pause);else next(); };
+        u.onerror = function(){ if(done)return;done=true;clearTimeout(to);idx++;next(); };
+        window.speechSynthesis.speak(u);
+      }
+      function cleanup(){ clearInterval(resumeTm); if(label)label.textContent=ui.speak; if(btn)btn.disabled=false; }
+      next();
+    }
+
+    /* ================================================================
+       PILLS — CATEGORY & LANGUAGE
+       ================================================================ */
+    var catPills = document.querySelectorAll('.pill[data-cat]');
+    for (var ci = 0; ci < catPills.length; ci++) {
+      catPills[ci].addEventListener('click', function(e){
+        e.stopPropagation();
+        for (var j=0;j<catPills.length;j++){catPills[j].classList.remove('active');catPills[j].setAttribute('aria-pressed','false');}
+        this.classList.add('active'); this.setAttribute('aria-pressed','true');
+        activeCategory = this.getAttribute('data-cat');
+      });
+    }
+    var langPills = document.querySelectorAll('.lang-pill');
+    for (var li = 0; li < langPills.length; li++) {
+      langPills[li].addEventListener('click', function(e){
+        e.stopPropagation();
+        for (var j=0;j<langPills.length;j++){langPills[j].classList.remove('active');langPills[j].setAttribute('aria-pressed','false');}
+        this.classList.add('active'); this.setAttribute('aria-pressed','true');
+        speechLang = this.getAttribute('data-lang');
+        updateBadge();
+      });
+    }
+
+    /* ================================================================
+       RANDOM BLESSING
+       ================================================================ */
+    function pickBlessing() {
+      var pool = BLESSINGS[speechLang], cat;
+      if (activeCategory === 'all') { var keys = Object.keys(pool); cat = keys[Math.floor(Math.random()*keys.length)]; }
+      else cat = activeCategory;
+      var arr = pool[cat];
+      return { text: arr[Math.floor(Math.random()*arr.length)], category: cat };
+    }
+
+    /* ================================================================
+       HEART TRAIL & CANVAS
+       ================================================================ */
+    var canvas = document.getElementById('trailCanvas');
+    var ctx = canvas.getContext('2d');
+    var hearts = [], HEART_MAX = 50;
+    var HEART_C = ['#e06070','#f08080','#e8b930','#c0a0ff','#ff9ab0','#ffccaa','#ffa0c0','#f0d060','#d080ff','#ff7090'];
+
+    function resizeCanvas() {
+      var d = window.devicePixelRatio||1;
+      canvas.width=window.innerWidth*d; canvas.height=window.innerHeight*d;
+      canvas.style.width=window.innerWidth+'px'; canvas.style.height=window.innerHeight+'px';
+      ctx.setTransform(d,0,0,d,0,0);
+    }
+    resizeCanvas();
+    var resizeTm;
+    window.addEventListener('resize', function(){ clearTimeout(resizeTm); resizeTm=setTimeout(resizeCanvas,100); });
+
+    function drawHeart(cx,cy,sz,col,a,r) {
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(r);
+      /* glow layer — simple circle instead of per-frame gradient allocation */
+      var gs=sz*1.8;
+      ctx.globalAlpha=a*0.18; ctx.fillStyle=col;
+      ctx.beginPath(); ctx.arc(0,sz*0.35,gs*0.5,0,Math.PI*2); ctx.fill();
+      /* heart shape */
+      ctx.globalAlpha=a; ctx.fillStyle=col;
+      var s=sz; ctx.beginPath();
+      ctx.moveTo(0,s*0.35); ctx.bezierCurveTo(0,s*0.1,-s*0.5,-s*0.15,-s*0.5,s*0.15);
+      ctx.bezierCurveTo(-s*0.5,s*0.45,0,s*0.6,0,s*0.85);
+      ctx.bezierCurveTo(0,s*0.6,s*0.5,s*0.45,s*0.5,s*0.15);
+      ctx.bezierCurveTo(s*0.5,-s*0.15,0,s*0.1,0,s*0.35);
+      ctx.closePath(); ctx.fill(); ctx.restore();
+    }
+
+    function spawnH(x,y,drag) {
+      if(hearts.length>=HEART_MAX) hearts.shift();
+      var life=drag ? 0.4+Math.random()*0.5 : 0.8+Math.random()*0.9;
+      var spd=drag ? 0.3+Math.random()*0.6 : 0.4+Math.random()*1.2;
+      var vyr=drag ? -Math.abs(Math.sin(Math.random()*6.28))*spd-0.3 : -Math.abs(Math.sin(Math.random()*6.28))*spd-0.6;
+      hearts.push({x:x,y:y,vx:Math.cos(Math.random()*6.28)*spd,vy:vyr,grav:drag?0.003:0.01,size:5+Math.random()*12,rot:(Math.random()-0.5)*0.6,spin:(Math.random()-0.5)*0.04,alpha:1,life:life,ml:life,col:HEART_C[Math.floor(Math.random()*HEART_C.length)]});
+      startAnim();
+    }
+    var DOM_MAX=8;
+    function spawnDomH(x,y) {
+      var existing=document.querySelectorAll('.heart-trail,.heart-glow');
+      if(existing.length>=DOM_MAX*2) { for(var k=0;k<3;k++){if(existing[k])existing[k].remove();} }
+      var el=document.createElement('div');el.className='heart-trail';el.setAttribute('aria-hidden','true');
+      var sz=10+Math.floor(Math.random()*16),dx=(Math.random()-0.5)*40,dy=(Math.random()-0.5)*20,sp=(Math.random()-0.5)*60,c=HEART_C[Math.floor(Math.random()*HEART_C.length)];
+      el.style.cssText='left:'+(x-sz/2)+'px;top:'+(y-sz/2)+'px;width:'+sz+'px;height:'+sz+'px;--dx:'+dx+'px;--dy:'+dy+'px;--sp:'+sp+'deg;';
+      el.innerHTML='<svg viewBox="0 0 32 32" width="'+sz+'" height="'+sz+'"><path d="M16 28s-11-7.5-11-15C5 8.5 7.5 6 10.5 6c1.8 0 3.5 1 4.5 2.5C16 7 17.2 6 19 6 20.5 6 22 6.5 23 8c1 1.5 1.5 3 1.5 5 0 7.5-11 15-11 15z" fill="'+c+'"/></svg>';
+      document.body.appendChild(el);
+      var g=document.createElement('div');g.className='heart-glow';g.setAttribute('aria-hidden','true');
+      g.style.cssText='left:'+x+'px;top:'+y+'px;width:'+(sz*2)+'px;height:'+(sz*2)+'px;background:radial-gradient(circle,'+c+'33 0%,transparent 70%);';
+      document.body.appendChild(g);
+      setTimeout(function(){if(el.parentNode)el.remove();},1650);
+      setTimeout(function(){if(g.parentNode)g.remove();},950);
+    }
+    document.addEventListener('visibilitychange',function(){
+      if(document.hidden){
+        var old=document.querySelectorAll('.heart-trail,.heart-glow');
+        for(var i=0;i<old.length;i++)old[i].remove();
+        hearts.length=0;
+        if(animId){cancelAnimationFrame(animId);animRunning=false;animId=0;}
+        var dpr=window.devicePixelRatio||1;
+        ctx.clearRect(0,0,canvas.width/dpr,canvas.height/dpr);
+      }
+    });
+
+    var lastF=0,animRunning=false,animId=0;
+    function animH(ts) {
+      if(!lastF){lastF=ts;}
+      var dt=Math.min((ts-lastF)/1000,0.05); lastF=ts;
+      var dpr=window.devicePixelRatio||1;
+      ctx.clearRect(0,0,canvas.width/dpr,canvas.height/dpr);
+      for(var i=hearts.length-1;i>=0;i--) {
+        var h=hearts[i]; h.x+=h.vx;h.y+=h.vy;h.vy+=h.grav;h.rot+=h.spin;h.life-=dt;h.alpha=Math.max(0,h.life/h.ml);
+        if(h.life<=0){hearts.splice(i,1);continue;}
+        var sc=0.3+0.7*(h.life/h.ml);
+        drawHeart(h.x,h.y,h.size*sc,h.col,h.alpha*0.8,h.rot);
+      }
+      if(hearts.length>0){animId=requestAnimationFrame(animH);}
+      else{animRunning=false;animId=0;ctx.clearRect(0,0,canvas.width/dpr,canvas.height/dpr);}
+    }
+    function startAnim(){if(!animRunning){animRunning=true;lastF=0;animId=requestAnimationFrame(animH);}}
+
+    /* ================================================================
+       MOUSE / TOUCH TRAIL
+       ================================================================ */
+    var trTh=0,TR_INT=60,isDn=false,lTX=0,lTY=0;
+    function handleTr(x,y){var now=Date.now();if(now-trTh<TR_INT)return;var dx=x-lTX,dy=y-lTY;if(Math.sqrt(dx*dx+dy*dy)<3&&!isDn)return;trTh=now;lTX=x;lTY=y;var n=isDn?2:1;for(var i=0;i<n;i++)spawnH(x+(Math.random()-0.5)*16,y+(Math.random()-0.5)*16,isDn);if(isDn||Math.random()<0.1)spawnDomH(x+(Math.random()-0.5)*10,y+(Math.random()-0.5)*10);}
+    document.addEventListener('mousemove',function(e){handleTr(e.clientX,e.clientY);});
+    document.addEventListener('mousedown',function(e){isDn=true;handleTr(e.clientX,e.clientY);});
+    document.addEventListener('mouseup',function(){isDn=false;});
+    document.addEventListener('touchmove',function(e){if(e.touches.length)handleTr(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+    document.addEventListener('touchstart',function(e){isDn=true;if(e.touches.length)handleTr(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+    document.addEventListener('touchend',function(){isDn=false;});
+
+    /* ================================================================
+       SPARKLES
+       ================================================================ */
+    function spawnSparkles(x,y) {
+      var cs=['#e8b930','#f0d060','#e06070','#c0a0ff','#f5f0e8','#ffe0a0'];
+      for(var i=0;i<4;i++){
+        var s=document.createElement('div');s.className='sparkle';s.setAttribute('aria-hidden','true');
+        var a=(Math.PI*2*i)/4+(Math.random()-0.5)*0.7,d=22+Math.random()*50,sz=2+Math.random()*4;
+        s.style.cssText='left:'+x+'px;top:'+y+'px;width:'+sz+'px;height:'+sz+'px;background:'+cs[i%6]+';';
+        s.style.setProperty('--tx',(Math.cos(a)*d)+'px');s.style.setProperty('--ty',(Math.sin(a)*d)+'px');
+        document.body.appendChild(s);
+        (function(el){el.addEventListener('animationend',function(){el.remove();});})(s);
+      }
+      for(var k=0;k<4;k++)spawnH(x+(Math.random()-0.5)*30,y+(Math.random()-0.5)*30,false);
+      spawnDomH(x+(Math.random()-0.5)*20,y+(Math.random()-0.5)*20);
+    }
+
+    /* ================================================================
+       BLESSING CARD
+       ================================================================ */
+    function showBlessing(x, y) {
+      var b = pickBlessing();
+      if (activeCards.length >= MAX_CARDS) dismissCard(activeCards[0]);
+
+      var card = document.createElement('div');
+      card.className = 'blessing';
+      card.setAttribute('role', 'status');
+      card.setAttribute('aria-label', 'Blessing: ' + b.text);
+      card.setAttribute('data-category', b.category);
+
+      var catDiv = document.createElement('div');
+      catDiv.className = 'blessing-cat';
+      catDiv.textContent = LABELS[speechLang][b.category];
+
+      var textP = document.createElement('p');
+      textP.className = 'blessing-text';
+      textP.textContent = b.text;
+
+      var actions = document.createElement('div');
+      actions.className = 'blessing-actions';
+
+      card.appendChild(catDiv);
+      card.appendChild(textP);
+      card.appendChild(actions);
+
+      var vw=window.innerWidth, vh=window.innerHeight;
+      var cw=Math.min(380,vw*0.86), ch=170;
+      card.style.left=Math.max(10,Math.min(x-cw/2,vw-cw-10))+'px';
+      card.style.top=Math.max(90,Math.min(y-ch/2-20,vh-ch-50))+'px';
+
+      document.body.appendChild(card);
+      activeCards.push(card);
+
+      /*
+       * Recording: Chinese only
+       * German / English / Japanese: TTS system voice playback
+       */
+      var showRec = (speechLang === 'zh') && REC_SUPPORTED;
+
+      if (showRec) {
+        renderRecIdle(card);
+      } else if (speechSupported) {
+        var u = UI[speechLang];
+        var speakBtn = mkBtn('btn-speak', SVG.speaker, u.speak, u.speak);
+        speakBtn.addEventListener('click', (function(txt,cat,btn){
+          return function(e){ e.stopPropagation(); speakEmotionally(txt,cat,btn); };
+        })(b.text, b.category, speakBtn));
+        actions.appendChild(speakBtn);
+        addCloseBtn(actions, card);
+      } else {
+        addCloseBtn(actions, card);
+      }
+
+      blessingCount++;
+      countEl.textContent = blessingCount;
+      liveEl.textContent = UI[speechLang].newBless + b.text;
+
+      if (promptEl && promptEl.parentNode) {
+        promptEl.classList.add('hidden');
+        setTimeout(function(){ if(promptEl.parentNode) promptEl.remove(); }, 600);
+      }
+      setTimeout(function(){ dismissCard(card); }, 9000);
+    }
+
+    function dismissCard(card) {
+      if (!card || !card.parentNode || card.classList.contains('exiting')) return;
+      cleanupRec(card);
+      card.classList.add('exiting');
+      var idx = activeCards.indexOf(card);
+      if (idx > -1) activeCards.splice(idx, 1);
+      setTimeout(function(){ if(card.parentNode) card.remove(); }, 550);
+    }
+
+    /* ================================================================
+       INTERACTION
+       ================================================================ */
+    function isInteractive(el) { return !!el.closest('button, nav, .blessing'); }
+    function handleInteraction(x,y,target) { if(isInteractive(target)) return; showBlessing(x,y); requestAnimationFrame(function(){ spawnSparkles(x,y); }); }
+
+    document.addEventListener('click', function(e){ handleInteraction(e.clientX,e.clientY,e.target); });
+    document.addEventListener('keydown', function(e){
+      if((e.key==='Enter'||e.key===' ') && !isInteractive(e.target)) {
+        e.preventDefault();
+        var cx=window.innerWidth/2+(Math.random()-0.5)*160, cy=window.innerHeight/2+(Math.random()-0.5)*80;
+        spawnSparkles(cx,cy); showBlessing(cx,cy);
+      }
+    });
+
+  })();
+  </script>
+</body>
+</html>
