@@ -396,6 +396,7 @@
     .heart-popup .heart-greetings li:nth-child(2) { animation-delay: 0.8s; }
     .heart-popup .heart-greetings li:nth-child(3) { animation-delay: 1.0s; }
     .heart-popup .heart-greetings li:nth-child(4) { animation-delay: 1.2s; }
+    .heart-popup .heart-greetings li:nth-child(5) { animation-delay: 1.4s; }
     @keyframes heartGreetIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
     .heart-popup .heart-greet-label {
@@ -442,6 +443,7 @@
     @keyframes glowPulse { 0%{opacity:0.45;transform:translate(-50%,-50%) scale(0.5)} 100%{opacity:0;transform:translate(-50%,-50%) scale(2.5)} }
 
     #trailCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 598; touch-action: none; }
+    #fireworksCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 8998; touch-action: none; }
 
     .counter {
       position: fixed; bottom: 1.2rem; left: 50%;
@@ -535,7 +537,7 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
       }
-      #trailCanvas, .heart-trail, .heart-glow { display: none !important; }
+      #trailCanvas, .heart-trail, .heart-glow, #fireworksCanvas { display: none !important; }
     }
   </style>
 </head>
@@ -558,6 +560,7 @@
       <button class="pill lang-pill" data-lang="zh" aria-pressed="false" aria-label="Chinese voice">中文</button>
       <button class="pill lang-pill" data-lang="ja" aria-pressed="false" aria-label="Japanese voice">日本語</button>
       <button class="pill lang-pill" data-lang="de" aria-pressed="false" aria-label="German voice">DE</button>
+      <button class="pill lang-pill" data-lang="ko" aria-pressed="false" aria-label="Korean voice">한국어</button>
     </nav>
   </header>
 
@@ -567,6 +570,7 @@
   </div>
 
   <canvas id="trailCanvas" aria-hidden="true"></canvas>
+  <canvas id="fireworksCanvas" aria-hidden="true"></canvas>
 
   <div class="voice-badge" id="voiceBadge" aria-live="polite">
     <span class="v-dot" id="voiceDot"></span>
@@ -763,6 +767,48 @@
           "Wunderbare Dinge sind auf dem Weg zu dir. Kannst du es spüren?",
           "Möge dein Weg erleuchtet sein mit goldenen, unerwarteten Gelegenheiten."
         ]
+      },
+      ko: {
+        birthday: [
+          "올해가 당신이 상상했던 것보다 더 많은 기쁨을 가져다주길 바랍니다.",
+          "또 한 번 태양을 돌아왔네요. 가장 빛나는 한 해가 되길 바랍니다.",
+          "사랑과 웃음, 원하는 만큼의 케이크로 가득한 하루가 되길 바랍니다.",
+          "당신의 생일이 행복한 추억으로 가득한 한 해의 시작이 되길 바랍니다.",
+          "당신의 멋진 또 한 해를 위해 건배!",
+          "케이크 위의 모든 촛불이 새로운 소원을 밝히길 바랍니다."
+        ],
+        happy: [
+          "당신의 기쁨은 전염됩니다. 그 빛을 전하는 것을 멈추지 마세요.",
+          "행복이 당신에게 너무나 아름답게 어울립니다. 자랑스럽게 여기세요.",
+          "오늘 당신의 미소가 다른 누군가의 미소 이유가 되길 바랍니다.",
+          "이 순간을 만끽하세요. 이 빛은 당신이 얻은 것입니다.",
+          "당신의 행복 덕분에 세상이 조금 더 밝아집니다.",
+          "웃음소리를 울려 퍼지게 하여 모든 그림자를 쫓아버리세요."
+        ],
+        sad: [
+          "가장 어두운 밤도 끝납니다... 태양은 다시 떠오릅니다.",
+          "괜찮지 않아도 괜찮습니다. 내일은 부드러운 새로운 시작이 있습니다.",
+          "당신은 자신이 믿는 것보다 용기 있고... 겉보기보다 훨씬 강합니다.",
+          "이것도 지나갈 것입니다. 버텨요. 더 밝은 날이 다가오고 있습니다.",
+          "당신의 눈물은 약함이 아닙니다. 그것은 용기의 증거입니다.",
+          "오늘의 비가 내일의 꽃을 키우고 있습니다."
+        ],
+        encouraging: [
+          "당신은 꿈에 생각보다 훨씬 가까이 다가가 있습니다.",
+          "앞으로 나아가는 한 걸음은 아무리 작아도 진보입니다.",
+          "자신을 믿으세요. 우주가 이미 당신을 응원하고 있습니다.",
+          "당신의 가능성은 무한합니다. 계속 나아가세요. 계속 힘내세요.",
+          "불가능한 여행은 시작하지 않은 여행뿐입니다.",
+          "당신은 지금까지 모든 최악의 날들을 버텨왔습니다. 계속 나아가세요."
+        ],
+        luck: [
+          "행운이 당신에게 미소 짓길... 오늘도, 항상.",
+          "행운은 준비가 기회를 만나는 것. 그리고 당신은 준비가 되어 있습니다.",
+          "별들이 부드럽게 당신 편에서 빛나고 있습니다. 그 길을 믿으세요.",
+          "뜻밖의 행복이 오늘 모든 모퉁이에서 당신을 찾길 바랍니다.",
+          "멋진 일들이 당신에게 다가오고 있습니다. 느껴지시나요?",
+          "당신의 길이 황금빛 예상치 못한 기회들로 밝혀지길 바랍니다."
+        ]
       }
     };
 
@@ -773,7 +819,8 @@
       en: { birthday:'Birthday', happy:'Joy', sad:'Comfort', encouraging:'Strength', luck:'Good Fortune' },
       zh: { birthday:'生日', happy:'喜悦', sad:'慰藉', encouraging:'力量', luck:'好运' },
       ja: { birthday:'お誕生日', happy:'喜び', sad:'慰め', encouraging:'勇気', luck:'幸運' },
-      de: { birthday:'Geburtstag', happy:'Freude', sad:'Trost', encouraging:'Stärke', luck:'Glück' }
+      de: { birthday:'Geburtstag', happy:'Freude', sad:'Trost', encouraging:'Stärke', luck:'Glück' },
+      ko: { birthday:'생일', happy:'기쁨', sad:'위로', encouraging:'용기', luck:'행운' }
     };
 
     var UI = {
@@ -786,7 +833,11 @@
       ja: { speak:'話す', close:'閉じる', speaking:'話しています...', newBless:'新しい祝福： ',
             popupTitle:'世界中からの祝福', popupLabel:'日本語' },
       de: { speak:'Sprechen', close:'Schließen', speaking:'Wird gesprochen...', newBless:'Neuer Segen: ',
-            popupTitle:'Segen Aus Der Ganzen Welt', popupLabel:'Deutsch' }
+            popupTitle:'Segen Aus Der Ganzen Welt', popupLabel:'Deutsch' },
+      ko: { speak:'말하기', close:'닫기', speaking:'말하는 중...', newBless:'새 축복: ',
+            rec:'녹음', stop:'정지', cancel:'취소', play:'재생', redo:'다시', sys:'시스템 음성', retry:'재시도',
+            errPerm:'마이크 권한이 거부되었습니다. 접근 권한을 허용한 후 다시 시도하세요', errMic:'마이크 장치를 찾을 수 없습니다', errRec:'녹음에 실패했습니다. 다시 시도하세요',
+            popupTitle:'전 세계에서 온 축복', popupLabel:'한국어' }
     };
 
     /* ================================================================
@@ -822,6 +873,13 @@
         sad:         { rate:1.02, pitch:0.82, vol:0.78, pauseMid:50,  pauseEnd:80  },
         encouraging: { rate:1.16, pitch:1.05, vol:0.95, pauseMid:12,  pauseEnd:35  },
         luck:        { rate:1.14, pitch:1.07, vol:0.90, pauseMid:15,  pauseEnd:40  }
+      },
+      ko: {
+        birthday:    { rate:1.10, pitch:1.08, vol:0.95, pauseMid:10,  pauseEnd:35  },
+        happy:       { rate:1.15, pitch:1.12, vol:0.96, pauseMid:5,   pauseEnd:25  },
+        sad:         { rate:0.95, pitch:0.84, vol:0.78, pauseMid:50,  pauseEnd:80  },
+        encouraging: { rate:1.08, pitch:1.04, vol:0.95, pauseMid:15,  pauseEnd:40  },
+        luck:        { rate:1.06, pitch:1.06, vol:0.90, pauseMid:15,  pauseEnd:40  }
       }
     };
 
@@ -835,7 +893,8 @@
       'kyoko','haruka','mizuki','ting-ting','mei-jia','sin-ji',
       'google 國語','google 廣東話','google 普通话','google 日本語',
       'microsoft huihui','microsoft yaoyao','microsoft haruka',
-      'anna','petra','katja','hedda','google deutsch','microsoft hedda','microsoft katja'
+      'anna','petra','katja','hedda','google deutsch','microsoft hedda','microsoft katja',
+      'yuna','google 한국의','microsoft heami','nara','eunji','minji'
     ];
     var MALE_HINTS = [
       'daniel','tom','otoya','male','david','mark','kangkang','ichiro',
@@ -892,7 +951,7 @@
     var voiceDotEl      = document.getElementById('voiceDot');
     var speechSupported = 'speechSynthesis' in window;
 
-    var bestVoices = { en: null, zh: null, ja: null, de: null };
+    var bestVoices = { en: null, zh: null, ja: null, de: null, ko: null };
     var voicesReady = false;
     var speechGen   = 0;
 
@@ -1244,14 +1303,15 @@
       bestVoices.zh = getBestVoice('zh-CN') || getBestVoice('zh');
       bestVoices.ja = getBestVoice('ja-JP') || getBestVoice('ja');
       bestVoices.de = getBestVoice('de-DE') || getBestVoice('de');
-      voicesReady = !!(bestVoices.en || bestVoices.zh || bestVoices.ja || bestVoices.de);
+      bestVoices.ko = getBestVoice('ko-KR') || getBestVoice('ko');
+      voicesReady = !!(bestVoices.en || bestVoices.zh || bestVoices.ja || bestVoices.de || bestVoices.ko);
       updateBadge();
     }
     function updateBadge() {
       var v = bestVoices[speechLang];
       if (v) { voiceNameEl.textContent = v.name + (v.localService?'':' (cloud)'); voiceDotEl.className = 'v-dot ok'; }
       else {
-        var msgs = {en:'No English voice', zh:'未找到中文语音', ja:'日本語の音声が見つかりません', de:'Keine deutsche Stimme gefunden'};
+        var msgs = {en:'No English voice', zh:'未找到中文语音', ja:'日本語の音声が見つかりません', de:'Keine deutsche Stimme gefunden', ko:'한국어 음성을 찾을 수 없습니다'};
         voiceNameEl.textContent = msgs[speechLang] || 'Voice not found';
         voiceDotEl.className = 'v-dot warn';
       }
@@ -1280,7 +1340,7 @@
     }
 
     function splitSpeech(text, lang) {
-      var useLatin = (lang === 'en' || lang === 'de');
+      var useLatin = (lang === 'en' || lang === 'de' || lang === 'ko');
       var raw = useLatin ? text.split(/([,.\u2026;:!?]+)/) : text.split(/([\u3001\u3002\uff01\uff1f]+)/);
       var isP = useLatin ? /^[,.\u2026;:!?]+$/ : /^[\u3001\u3002\uff01\uff1f]+$/;
       var parts = [];
@@ -1443,6 +1503,9 @@
         if(animId){cancelAnimationFrame(animId);animRunning=false;animId=0;}
         var dpr=window.devicePixelRatio||1;
         ctx.clearRect(0,0,canvas.width/dpr,canvas.height/dpr);
+        fwParticles.length=0;
+        if(fwAnimId){cancelAnimationFrame(fwAnimId);fwRunning=false;fwAnimId=0;}
+        fwCtx.clearRect(0,0,fwCanvas.width/dpr,fwCanvas.height/dpr);
       }
     });
 
@@ -1569,6 +1632,204 @@
     }
 
     /* ================================================================
+       FIREWORKS ENGINE — Canvas-based particle explosions
+       ================================================================ */
+    var fwCanvas = document.getElementById('fireworksCanvas');
+    var fwCtx = fwCanvas.getContext('2d');
+    var fwParticles = [];
+    var fwRunning = false, fwAnimId = 0;
+
+    function resizeFwCanvas() {
+      var d = window.devicePixelRatio || 1;
+      fwCanvas.width = window.innerWidth * d;
+      fwCanvas.height = window.innerHeight * d;
+      fwCanvas.style.width = window.innerWidth + 'px';
+      fwCanvas.style.height = window.innerHeight + 'px';
+      fwCtx.setTransform(d, 0, 0, d, 0, 0);
+    }
+    resizeFwCanvas();
+    window.addEventListener('resize', function(){ resizeFwCanvas(); });
+
+    var FW_COLORS = [
+      '#ff4060','#ff6040','#ff8030','#e8b930','#ffd040',
+      '#40ff80','#40c8ff','#8060ff','#c0a0ff','#ff60b0',
+      '#ff4080','#60e0ff','#a0ff40','#ff60e0','#f0a0b0'
+    ];
+
+    function fwHexToRgb(hex) {
+      var r = parseInt(hex.slice(1,3),16);
+      var g = parseInt(hex.slice(3,5),16);
+      var b = parseInt(hex.slice(5,7),16);
+      return r+','+g+','+b;
+    }
+
+    function FwParticle(x, y, vx, vy, color, type) {
+      this.x = x; this.y = y;
+      this.vx = vx; this.vy = vy;
+      this.color = color;
+      this.alpha = type === 'trail' ? 0.6 : 1;
+      this.decay = type === 'trail' ? (0.015 + Math.random()*0.02) :
+                   type === 'sparkle' ? (0.008 + Math.random()*0.015) :
+                   (0.012 + Math.random()*0.01);
+      this.size = type === 'trail' ? (1.5 + Math.random()*1.5) :
+                  type === 'sparkle' ? (1 + Math.random()*3) :
+                  (1.5 + Math.random()*3);
+      this.type = type;
+      this.gravity = type === 'trail' ? 0.03 : 0.02 + Math.random()*0.015;
+      this.drag = type === 'trail' ? 0.99 : 0.98 + Math.random()*0.015;
+      this.rotation = Math.random() * Math.PI * 2;
+      this.rotSpeed = (Math.random()-0.5) * 0.2;
+    }
+
+    function fwCreateExplosion(x, y) {
+      var count = 60 + Math.floor(Math.random()*40);
+      var color = FW_COLORS[Math.floor(Math.random()*FW_COLORS.length)];
+      var rgb = fwHexToRgb(color);
+      var hasSecondary = Math.random() < 0.5;
+      var color2 = hasSecondary ? FW_COLORS[Math.floor(Math.random()*FW_COLORS.length)] : null;
+      var rgb2 = color2 ? fwHexToRgb(color2) : null;
+      var pattern = Math.random();
+
+      for (var i = 0; i < count; i++) {
+        var angle, speed, pColor, pRgb;
+        if (pattern < 0.25) {
+          angle = (i / count) * Math.PI * 2;
+          speed = 2 + Math.random()*4;
+        } else if (pattern < 0.5) {
+          angle = Math.random() * Math.PI * 2;
+          speed = 3 + Math.random()*6;
+        } else if (pattern < 0.75) {
+          angle = Math.random() * Math.PI * 2;
+          speed = 1 + Math.random()*8;
+        } else {
+          angle = (i / count) * Math.PI * 2 + (Math.random()-0.5)*0.5;
+          speed = 2 + Math.random()*7;
+        }
+        pColor = (hasSecondary && Math.random()<0.3) ? color2 : color;
+        pRgb = (hasSecondary && Math.random()<0.3) ? rgb2 : rgb;
+        fwParticles.push(new FwParticle(x, y,
+          Math.cos(angle)*speed, Math.sin(angle)*speed, pColor, 'sparkle'));
+        if (i < count*0.2) {
+          fwParticles.push(new FwParticle(x, y,
+            Math.cos(angle)*speed*0.5+(Math.random()-0.5)*2,
+            Math.sin(angle)*speed*0.5+(Math.random()-0.5)*2,
+            pColor, 'flash'));
+        }
+      }
+    }
+
+    function fwCreateTrail(x, y) {
+      var count = 20 + Math.floor(Math.random()*15);
+      var color = FW_COLORS[Math.floor(Math.random()*FW_COLORS.length)];
+      for (var i = 0; i < count; i++) {
+        var angle = Math.random()*Math.PI*2;
+        var speed = 1 + Math.random()*3;
+        fwParticles.push(new FwParticle(x, y,
+          Math.cos(angle)*speed, Math.sin(angle)*speed, color, 'trail'));
+      }
+    }
+
+    function launchFirework() {
+      var x = Math.random()*window.innerWidth;
+      var targetY = Math.random()*window.innerHeight*0.5 + 50;
+      var trailCount = 8 + Math.floor(Math.random()*6);
+      var color = FW_COLORS[Math.floor(Math.random()*FW_COLORS.length)];
+      var cx = x + (Math.random()-0.5)*200;
+      cx = Math.max(50, Math.min(window.innerWidth-50, cx));
+
+      for (var i = 0; i < trailCount; i++) {
+        var progress = i / trailCount;
+        var px = cx + (Math.random()-0.5)*8;
+        var py = window.innerHeight - progress * (window.innerHeight - targetY);
+        fwParticles.push(new FwParticle(px, py,
+          (Math.random()-0.5)*0.5, -1.5+Math.random()*0.5,
+          color, 'trail'));
+      }
+
+      var delay = 300 + Math.random()*500;
+      setTimeout(function(){ fwCreateExplosion(cx, targetY); fwCreateTrail(cx, targetY); }, delay);
+    }
+
+    function fwAnimLoop() {
+      var dpr = window.devicePixelRatio || 1;
+      fwCtx.clearRect(0, 0, fwCanvas.width/dpr, fwCanvas.height/dpr);
+
+      for (var i = fwParticles.length-1; i >= 0; i--) {
+        var p = fwParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.vx *= p.drag;
+        p.vy *= p.drag;
+        p.alpha -= p.decay;
+        p.rotation += p.rotSpeed;
+        if (p.alpha <= 0) { fwParticles.splice(i,1); continue; }
+
+        if (p.type === 'sparkle') {
+          var sz = p.size * p.alpha;
+          fwCtx.save();
+          fwCtx.globalAlpha = p.alpha * 0.8;
+          fwCtx.fillStyle = p.color;
+          fwCtx.beginPath();
+          var a = p.rotation, r = sz;
+          for (var k = 0; k < 4; k++) {
+            var ang = a + k*Math.PI/2;
+            fwCtx.lineTo(Math.cos(ang)*r, Math.sin(ang)*r);
+            fwCtx.lineTo(Math.cos(ang+Math.PI/4)*r*0.4, Math.sin(ang+Math.PI/4)*r*0.4);
+          }
+          fwCtx.closePath();
+          fwCtx.fill();
+          fwCtx.globalAlpha = p.alpha * 0.3;
+          fwCtx.shadowColor = p.color;
+          fwCtx.shadowBlur = 8;
+          fwCtx.fill();
+          fwCtx.restore();
+          p.size *= 0.998;
+        } else if (p.type === 'trail') {
+          fwCtx.globalAlpha = p.alpha * 0.7;
+          fwCtx.fillStyle = p.color;
+          fwCtx.beginPath();
+          fwCtx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI*2);
+          fwCtx.fill();
+          fwCtx.globalAlpha = p.alpha * 0.3;
+          fwCtx.beginPath();
+          fwCtx.arc(p.x, p.y, p.size * 1.2, 0, Math.PI*2);
+          fwCtx.fill();
+          fwCtx.globalAlpha = 1;
+        } else {
+          fwCtx.save();
+          fwCtx.globalAlpha = p.alpha * 0.5;
+          fwCtx.fillStyle = '#fff';
+          fwCtx.beginPath();
+          fwCtx.arc(p.x, p.y, p.size * p.alpha * 2, 0, Math.PI*2);
+          fwCtx.fill();
+          fwCtx.restore();
+        }
+      }
+
+      if (fwParticles.length > 0) {
+        fwAnimId = requestAnimationFrame(fwAnimLoop);
+      } else {
+        fwRunning = false;
+        fwAnimId = 0;
+        var d = window.devicePixelRatio||1;
+        fwCtx.clearRect(0, 0, fwCanvas.width/d, fwCanvas.height/d);
+      }
+    }
+
+    function startFireworks() {
+      fwParticles.length = 0;
+      var waves = 3;
+      for (var w = 0; w < waves; w++) {
+        var count = 3 + Math.floor(Math.random()*3);
+        for (var i = 0; i < count; i++) {
+          (function(delay){ setTimeout(function(){ launchFirework(); }, delay); })(w*500 + i*300 + Math.random()*200);
+        }
+      }
+      if (!fwRunning) { fwRunning = true; fwAnimId = requestAnimationFrame(fwAnimLoop); }
+    }
+
+    /* ================================================================
        HEART POPUP — Multi-language blessing display
        ================================================================ */
     var heartPopupActive = false;
@@ -1578,7 +1839,7 @@
 
       /* Pick one random blessing from each language */
       var greetings = [];
-      var langs = ['en','zh','ja','de'];
+      var langs = ['en','zh','ja','de','ko'];
       for (var i = 0; i < langs.length; i++) {
         var lang = langs[i];
         var pool = BLESSINGS[lang];
@@ -1666,6 +1927,7 @@
           if (overlay.parentNode) overlay.remove();
           heartPopupActive = false;
           heartClickCount = 0;
+          startFireworks();
         }, 650);
       }, 5000);
     }
