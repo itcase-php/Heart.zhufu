@@ -1681,6 +1681,10 @@
       this.rotSpeed = (Math.random()-0.5) * 0.2;
     }
 
+    function ensureFwRunning() {
+      if (!fwRunning) { fwRunning = true; fwAnimId = requestAnimationFrame(fwAnimLoop); }
+    }
+
     function fwCreateExplosion(x, y) {
       var count = 60 + Math.floor(Math.random()*40);
       var color = FW_COLORS[Math.floor(Math.random()*FW_COLORS.length)];
@@ -1716,6 +1720,7 @@
             pColor, 'flash'));
         }
       }
+      ensureFwRunning();
     }
 
     function fwCreateTrail(x, y) {
@@ -1727,6 +1732,7 @@
         fwParticles.push(new FwParticle(x, y,
           Math.cos(angle)*speed, Math.sin(angle)*speed, color, 'trail'));
       }
+      ensureFwRunning();
     }
 
     function launchFirework() {
@@ -1745,6 +1751,7 @@
           (Math.random()-0.5)*0.5, -1.5+Math.random()*0.5,
           color, 'trail'));
       }
+      ensureFwRunning();
 
       var delay = 300 + Math.random()*500;
       setTimeout(function(){ fwCreateExplosion(cx, targetY); fwCreateTrail(cx, targetY); }, delay);
