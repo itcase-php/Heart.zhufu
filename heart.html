@@ -335,6 +335,95 @@
     }
     @keyframes sparklePop { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)} }
 
+    .heart-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: auto;
+    }
+    .heart-overlay .heart-bg {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.65);
+      animation: heartOverlayIn 0.5s ease forwards;
+    }
+    @keyframes heartOverlayIn { from{opacity:0} to{opacity:1} }
+
+    .heart-popup {
+      position: relative; z-index: 1;
+      width: min(420px, 90vw); min-height: 320px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 2.8rem 2rem 2.2rem;
+      animation: heartPopupIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes heartPopupIn {
+      0%   { opacity: 0; transform: scale(0.2) rotate(-15deg); }
+      50%  { opacity: 1; transform: scale(1.08) rotate(2deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    .heart-popup.heart-exit {
+      animation: heartPopupOut 0.6s ease forwards;
+    }
+    @keyframes heartPopupOut {
+      to { opacity: 0; transform: scale(0.7) translateY(-30px); }
+    }
+
+    .heart-popup .heart-shape {
+      position: absolute; inset: 0;
+      filter: drop-shadow(0 0 40px rgba(224,96,112,0.3)) drop-shadow(0 0 80px rgba(232,185,48,0.15));
+    }
+    .heart-popup .heart-shape svg { width: 100%; height: 100%; }
+
+    .heart-popup .heart-title {
+      position: relative; z-index: 2;
+      font-family: var(--font-display);
+      font-weight: 600; font-style: italic;
+      font-size: clamp(1.3rem, 3.5vw, 1.7rem);
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+      margin-bottom: 1rem;
+      animation: heartTextIn 0.8s ease 0.4s both;
+    }
+    .heart-popup .heart-greetings {
+      position: relative; z-index: 2;
+      list-style: none; padding: 0; margin: 0;
+      width: 100%; max-width: 300px;
+    }
+    .heart-popup .heart-greetings li {
+      margin-bottom: 0.55rem;
+      opacity: 0;
+      animation: heartGreetIn 0.4s ease forwards;
+    }
+    .heart-popup .heart-greetings li:nth-child(1) { animation-delay: 0.6s; }
+    .heart-popup .heart-greetings li:nth-child(2) { animation-delay: 0.8s; }
+    .heart-popup .heart-greetings li:nth-child(3) { animation-delay: 1.0s; }
+    .heart-popup .heart-greetings li:nth-child(4) { animation-delay: 1.2s; }
+    @keyframes heartGreetIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+    .heart-popup .heart-greet-label {
+      font-family: var(--font-body);
+      font-size: 0.55rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      display: block; margin-bottom: 0.15rem;
+    }
+    .heart-popup .heart-greet-text {
+      font-family: var(--font-display);
+      font-size: clamp(0.82rem, 2.2vw, 0.95rem);
+      font-weight: 400; line-height: 1.5;
+      color: #fff;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+    }
+    .heart-popup .heart-progress {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px; z-index: 3; overflow: hidden; border-radius: 0 0 50% 50%;
+    }
+    .heart-popup .heart-progress-bar {
+      height: 100%; background: var(--gold);
+      transform-origin: left;
+      animation: heartProgress 5s linear forwards;
+    }
+    @keyframes heartProgress { from{transform:scaleX(1)} to{transform:scaleX(0)} }
+
+    @keyframes heartTextIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+
     .heart-trail {
       position: fixed; pointer-events: none; z-index: 600;
       animation: heartFloat 1.6s ease-out forwards;
@@ -688,12 +777,16 @@
     };
 
     var UI = {
-      en: { speak:'Speak', close:'Close', speaking:'Speaking...', newBless:'New blessing: ' },
+      en: { speak:'Speak', close:'Close', speaking:'Speaking...', newBless:'New blessing: ',
+            popupTitle:'Blessings From Around the World', popupLabel:'English' },
       zh: { speak:'朗读', close:'关闭', speaking:'朗读中...', newBless:'新祝福：',
             rec:'录音', stop:'停止', cancel:'取消', play:'播放', redo:'重录', sys:'系统语音', retry:'重试',
-            errPerm:'麦克风权限被拒绝，请允许访问权限后重试', errMic:'未检测到麦克风设备', errRec:'录音失败，请重试' },
-      ja: { speak:'話す', close:'閉じる', speaking:'話しています...', newBless:'新しい祝福： ' },
-      de: { speak:'Sprechen', close:'Schließen', speaking:'Wird gesprochen...', newBless:'Neuer Segen: ' }
+            errPerm:'麦克风权限被拒绝，请允许访问权限后重试', errMic:'未检测到麦克风设备', errRec:'录音失败，请重试',
+            popupTitle:'来自世界各地的祝福', popupLabel:'中文' },
+      ja: { speak:'話す', close:'閉じる', speaking:'話しています...', newBless:'新しい祝福： ',
+            popupTitle:'世界中からの祝福', popupLabel:'日本語' },
+      de: { speak:'Sprechen', close:'Schließen', speaking:'Wird gesprochen...', newBless:'Neuer Segen: ',
+            popupTitle:'Segen Aus Der Ganzen Welt', popupLabel:'Deutsch' }
     };
 
     /* ================================================================
@@ -789,6 +882,8 @@
     var blessingCount  = 0;
     var activeCards    = [];
     var MAX_CARDS      = 6;
+    var heartClickCount = 0;
+    var HEART_CLICK_TRIGGER = 10;
 
     var promptEl        = document.getElementById('prompt');
     var liveEl          = document.getElementById('live');
@@ -1474,12 +1569,121 @@
     }
 
     /* ================================================================
+       HEART POPUP — Multi-language blessing display
+       ================================================================ */
+    var heartPopupActive = false;
+    function showHeartPopup() {
+      if (heartPopupActive) return;
+      heartPopupActive = true;
+
+      /* Pick one random blessing from each language */
+      var greetings = [];
+      var langs = ['en','zh','ja','de'];
+      for (var i = 0; i < langs.length; i++) {
+        var lang = langs[i];
+        var pool = BLESSINGS[lang];
+        var cats = Object.keys(pool);
+        var cat = cats[Math.floor(Math.random() * cats.length)];
+        var arr = pool[cat];
+        var text = arr[Math.floor(Math.random() * arr.length)];
+        greetings.push({ lang: lang, label: UI[lang].popupLabel, text: text });
+      }
+
+      /* Overlay */
+      var overlay = document.createElement('div');
+      overlay.className = 'heart-overlay';
+
+      /* Background */
+      var bg = document.createElement('div');
+      bg.className = 'heart-bg';
+      overlay.appendChild(bg);
+
+      /* Heart container */
+      var popup = document.createElement('div');
+      popup.className = 'heart-popup';
+
+      /* SVG heart shape background */
+      var heartShape = document.createElement('div');
+      heartShape.className = 'heart-shape';
+      heartShape.innerHTML = '<svg viewBox="0 0 400 380" xmlns="http://www.w3.org/2000/svg">' +
+        '<defs>' +
+        '<linearGradient id="hg1" x1="0%" y1="0%" x2="100%" y2="100%">' +
+        '<stop offset="0%" style="stop-color:#e06070;stop-opacity:0.85"/>' +
+        '<stop offset="50%" style="stop-color:#d04060;stop-opacity:0.9"/>' +
+        '<stop offset="100%" style="stop-color:#c03050;stop-opacity:0.85"/>' +
+        '</linearGradient>' +
+        '</defs>' +
+        '<path d="M200 350 C200 350 30 240 30 140 C30 80 75 40 125 40 C160 40 185 60 200 85 C215 60 240 40 275 40 C325 40 370 80 370 140 C370 240 200 350 200 350Z" ' +
+        'fill="url(#hg1)" stroke="rgba(232,185,48,0.4)" stroke-width="2"/>' +
+        '</svg>';
+      popup.appendChild(heartShape);
+
+      /* Title */
+      var titleEl = document.createElement('div');
+      titleEl.className = 'heart-title';
+      titleEl.textContent = UI[speechLang].popupTitle;
+      popup.appendChild(titleEl);
+
+      /* Greetings list */
+      var list = document.createElement('ul');
+      list.className = 'heart-greetings';
+      var colors = ['var(--gold)', 'var(--lavender)', 'var(--sakura)', 'var(--rose)'];
+      for (var j = 0; j < greetings.length; j++) {
+        var li = document.createElement('li');
+        var label = document.createElement('span');
+        label.className = 'heart-greet-label';
+        label.textContent = greetings[j].label;
+        label.style.color = colors[j];
+        var text = document.createElement('span');
+        text.className = 'heart-greet-text';
+        text.textContent = greetings[j].text;
+        li.appendChild(label);
+        li.appendChild(text);
+        list.appendChild(li);
+      }
+      popup.appendChild(list);
+
+      /* Progress bar */
+      var progress = document.createElement('div');
+      progress.className = 'heart-progress';
+      var bar = document.createElement('div');
+      bar.className = 'heart-progress-bar';
+      progress.appendChild(bar);
+      popup.appendChild(progress);
+
+      overlay.appendChild(popup);
+      document.body.appendChild(overlay);
+
+      /* Remove existing cards and hide elements */
+      for (var k = activeCards.length - 1; k >= 0; k--) {
+        dismissCard(activeCards[k]);
+      }
+
+      /* Auto-dismiss after 5 seconds */
+      setTimeout(function() {
+        popup.classList.add('heart-exit');
+        setTimeout(function() {
+          if (overlay.parentNode) overlay.remove();
+          heartPopupActive = false;
+          heartClickCount = 0;
+        }, 650);
+      }, 5000);
+    }
+
+    /* ================================================================
        INTERACTION
        ================================================================ */
     function isInteractive(el) { return !!el.closest('button, nav, .blessing'); }
     function handleInteraction(x,y,target) { if(isInteractive(target)) return; showBlessing(x,y); requestAnimationFrame(function(){ spawnSparkles(x,y); }); }
 
     document.addEventListener('click', function(e){ handleInteraction(e.clientX,e.clientY,e.target); });
+    document.addEventListener('click', function(e){
+      if (heartPopupActive) return;
+      heartClickCount++;
+      if (heartClickCount >= HEART_CLICK_TRIGGER) {
+        showHeartPopup();
+      }
+    });
     document.addEventListener('keydown', function(e){
       if((e.key==='Enter'||e.key===' ') && !isInteractive(e.target)) {
         e.preventDefault();
