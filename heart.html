@@ -539,9 +539,105 @@
       }
       #trailCanvas, .heart-trail, .heart-glow, #fireworksCanvas { display: none !important; }
     }
+
+    /* ================================================================
+       INTRO POPUP — sequential welcome messages
+       ================================================================ */
+    .intro-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,0.75);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .intro-overlay.visible { opacity: 1; }
+    .intro-overlay.fade-out { opacity: 0; transition: opacity 0.5s ease; }
+
+    .intro-card {
+      position: absolute;
+      width: min(440px, 88vw);
+      padding: 2.5rem 2rem 2rem;
+      background: var(--card-surface);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 80px rgba(232,185,48,0.08);
+      text-align: center;
+      transform: scale(0.85);
+      opacity: 0;
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), top 0.45s cubic-bezier(0.16, 1, 0.3, 1), left 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .intro-overlay.visible .intro-card {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .intro-card .intro-icon {
+      font-size: 2.4rem;
+      margin-bottom: 0.8rem;
+      display: block;
+      animation: introPulse 2s ease-in-out infinite;
+    }
+    @keyframes introPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+
+    .intro-card .intro-text {
+      font-family: var(--font-display);
+      font-weight: 600; font-style: italic;
+      font-size: clamp(1.05rem, 3vw, 1.3rem);
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 1.8rem;
+      min-height: 3.2em;
+    }
+
+    .intro-card .intro-step {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1.2rem;
+      letter-spacing: 0.08em;
+    }
+
+    .intro-card .intro-btn {
+      display: inline-block;
+      padding: 0.65rem 2rem;
+      font-family: var(--font-body);
+      font-size: 0.9rem; font-weight: 500;
+      color: #fff; cursor: pointer;
+      background: linear-gradient(135deg, var(--gold), #d4a020);
+      border: none; border-radius: 30px;
+      box-shadow: 0 4px 16px rgba(232,185,48,0.3);
+      transition: all 0.25s ease;
+      min-width: 140px;
+    }
+    .intro-card .intro-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(232,185,48,0.45);
+    }
+    .intro-card .intro-btn:active {
+      transform: translateY(0);
+    }
+    .intro-card .intro-btn.exit-btn {
+      background: linear-gradient(135deg, #666, #444);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .intro-card .intro-btn.exit-btn:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+    }
   </style>
 </head>
 <body>
+
+  <!-- Intro Popup Overlay -->
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-card">
+      <span class="intro-icon" id="introIcon">🎁</span>
+      <p class="intro-text" id="introText"></p>
+      <p class="intro-step" id="introStep"></p>
+      <button class="intro-btn" id="introBtn">Continue</button>
+    </div>
+  </div>
 
   <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
@@ -584,6 +680,171 @@
   <script>
   (function () {
     'use strict';
+
+    /* ================================================================
+       INTRO POPUP — sequential welcome messages
+       ================================================================ */
+    (function () {
+      var steps = [
+        { icon: '🎁', text: '这里有一份小礼物，不知道你会不会喜欢' },
+        { icon: '💫', text: '也许与其他人相比这份礼物显得很微不足道' },
+        { icon: '😔', text: '毕竟你也知道我其实没有多大本领' },
+        { icon: '💝', text: '如果你不喜欢的话现在就可以点击退出，反之就点击继续吧！' }
+      ];
+      var heartSteps = [
+        { icon: '😳', text: '没想到你居然选择继续浏览' },
+        { icon: '😊', text: '好吧，现在你所看到的这个网页叫做"祝福语录交互播放器"' },
+        { icon: '🌟', text: '是我打算做出来送你的，希望你能每天都开心一点' },
+        { icon: '😢', text: '我知道我可能每天都会让你难过' },
+        { icon: '❤️', text: '但是我想说的是：我喜欢你，很喜欢很喜欢' },
+        { icon: '🙏', text: '这个网页是我临时起意做的，可能略显粗糙，只求你别嫌弃' },
+        { icon: '😔', text: '虽然我不是那些成绩优秀的人，也不是那些持之以恒的人' },
+        { icon: '💪', text: '但是我始终相信，有些事与我是什么样的人并没有关系' },
+        { icon: '📖', text: '就好比你现在看到了这里' },
+        { icon: '✨', text: '此时此刻，只要你在这个界面' },
+        { icon: '💖', text: '就代表此刻我一直喜欢着你，喜欢你的一切' },
+        { icon: '🙈', text: '有些话当面我可能不好意思说' },
+        { icon: '💬', text: '总之不管怎么说，我知道你更想听我当面和你聊天' }
+      ];
+      var current = 0;
+      var heartCurrent = 0;
+      var phase = 'initial'; // 'initial' | 'heart'
+      var overlay = document.getElementById('introOverlay');
+      var textEl = document.getElementById('introText');
+      var stepEl = document.getElementById('introStep');
+      var btnEl = document.getElementById('introBtn');
+      var iconEl = document.getElementById('introIcon');
+      var introComplete = false;
+
+      // Prevent page unload while intro is active
+      function beforeUnloadHandler(e) {
+        if (!introComplete) {
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      }
+      window.addEventListener('beforeunload', beforeUnloadHandler);
+
+      // Block page interaction while intro is active
+      // Only stop propagation when clicking the overlay background (not buttons)
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) e.stopPropagation();
+      });
+      document.addEventListener('keydown', function blockKeys(e) {
+        if (!introComplete) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, true);
+
+      var exitBtn = null;
+      var cardEl = overlay.querySelector('.intro-card');
+      var cardW = 0, cardH = 0;
+
+      function measureCard() {
+        cardW = cardEl.offsetWidth;
+        cardH = cardEl.offsetHeight;
+      }
+
+      function randomPosition() {
+        var pad = 20;
+        var maxL = window.innerWidth - cardW - pad;
+        var maxT = window.innerHeight - cardH - pad;
+        cardEl.style.left = (pad + Math.random() * Math.max(0, maxL - pad)) + 'px';
+        cardEl.style.top  = (pad + Math.random() * Math.max(0, maxT - pad)) + 'px';
+      }
+
+      function showStep(index) {
+        var step = steps[index];
+        iconEl.textContent = step.icon;
+        textEl.textContent = step.text;
+        stepEl.textContent = '第 ' + (index + 1) + ' 步 / 共 ' + steps.length + ' 步';
+        if (cardW > 0) randomPosition();
+
+        // Remove exit button if it exists
+        if (exitBtn && exitBtn.parentNode) {
+          exitBtn.remove();
+          exitBtn = null;
+        }
+
+        if (index === steps.length - 1) {
+          // Last step: show both Continue and Exit buttons
+          btnEl.textContent = '继续';
+          exitBtn = document.createElement('button');
+          exitBtn.className = 'intro-btn exit-btn';
+          exitBtn.textContent = '退出';
+          exitBtn.style.marginLeft = '0.8rem';
+          btnEl.parentNode.insertBefore(exitBtn, btnEl.nextSibling);
+          exitBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            // Gentle confirmation — redirect back to step 1
+            confirmMode = true;
+            iconEl.textContent = '🥺';
+            textEl.textContent = '你确定吗？试试看嘛，说不定你会喜欢的！';
+            stepEl.textContent = '';
+            if (exitBtn && exitBtn.parentNode) { exitBtn.remove(); exitBtn = null; }
+            btnEl.textContent = '好吧，我看看';
+          });
+        } else {
+          btnEl.textContent = '继续';
+        }
+      }
+
+      function showHeartStep(index) {
+        var step = heartSteps[index];
+        iconEl.textContent = step.icon;
+        textEl.textContent = step.text;
+        stepEl.textContent = (index + 1) + ' / ' + heartSteps.length;
+        if (cardW > 0) randomPosition();
+        btnEl.textContent = index === heartSteps.length - 1 ? '开始' : '继续';
+      }
+
+      var confirmMode = false;
+
+      btnEl.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (confirmMode) {
+          // User clicked "OK, let me see" after trying to exit
+          confirmMode = false;
+          current = 0;
+          showStep(0);
+          return;
+        }
+
+        if (phase === 'initial') {
+          if (current < steps.length - 1) {
+            current++;
+            showStep(current);
+          } else {
+            // Initial steps done — transition to heart phase
+            phase = 'heart';
+            heartCurrent = 0;
+            showHeartStep(0);
+          }
+        } else {
+          if (heartCurrent < heartSteps.length - 1) {
+            heartCurrent++;
+            showHeartStep(heartCurrent);
+          } else {
+            // All steps completed — dismiss
+            introComplete = true;
+            window.removeEventListener('beforeunload', beforeUnloadHandler);
+            overlay.classList.add('fade-out');
+            setTimeout(function () {
+              overlay.remove();
+            }, 500);
+          }
+        }
+      });
+
+      // Show the overlay
+      showStep(0);
+      requestAnimationFrame(function () {
+        overlay.classList.add('visible');
+        measureCard();
+        randomPosition();
+      });
+    })();
 
     /* ================================================================
        SVG ICONS
