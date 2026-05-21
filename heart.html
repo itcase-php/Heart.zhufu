@@ -625,9 +625,159 @@
     .intro-card .intro-btn.exit-btn:hover {
       box-shadow: 0 6px 24px rgba(0,0,0,0.45);
     }
+
+    /* ===== VOICE GATE OVERLAY ===== */
+    .voice-gate-overlay {
+      position: fixed; inset: 0; z-index: 11000;
+      background: rgba(0,0,0,0.82);
+      -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .voice-gate-overlay.visible { opacity: 1; }
+    .voice-gate-overlay.fade-out { opacity: 0; transition: opacity 0.6s ease; }
+
+    .voice-gate-card {
+      width: min(420px, 88vw);
+      padding: 2.5rem 2rem 2rem;
+      background: var(--card-surface);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 80px rgba(232,185,48,0.08);
+      text-align: center;
+      transform: scale(0.85);
+      opacity: 0;
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .voice-gate-overlay.visible .voice-gate-card {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .voice-gate-card .gate-mic-icon {
+      width: 64px; height: 64px;
+      margin: 0 auto 1.2rem;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(232,185,48,0.12);
+      border: 2px solid rgba(232,185,48,0.3);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .voice-gate-card .gate-mic-icon svg {
+      width: 30px; height: 30px; fill: var(--gold);
+    }
+    .voice-gate-card .gate-mic-icon.listening {
+      background: rgba(224,96,112,0.15);
+      border-color: var(--rose);
+      animation: gateRecPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes gateRecPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(224,96,112,0.3); }
+      50%     { box-shadow: 0 0 20px 6px rgba(224,96,112,0.15); }
+    }
+
+    .voice-gate-card .gate-title {
+      font-family: var(--font-display);
+      font-weight: 600; font-style: italic;
+      font-size: clamp(1.05rem, 3vw, 1.3rem);
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 0.6rem;
+    }
+    .voice-gate-card .gate-hint {
+      font-size: 0.8rem;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+      letter-spacing: 0.05em;
+    }
+    .voice-gate-card .gate-feedback {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      min-height: 1.6em;
+      margin-bottom: 1.2rem;
+      transition: color 0.3s;
+    }
+    .voice-gate-card .gate-feedback.success { color: #50c878; }
+    .voice-gate-card .gate-feedback.error   { color: var(--rose); }
+
+    .voice-gate-card .gate-fallback {
+      display: none;
+      margin-top: 0.5rem;
+    }
+    .voice-gate-card .gate-fallback.active { display: block; }
+    .voice-gate-card .gate-fallback input {
+      width: 100%; padding: 0.6rem 1rem;
+      font-family: var(--font-body); font-size: 0.9rem;
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; outline: none;
+      margin-bottom: 0.8rem;
+      text-align: center;
+    }
+    .voice-gate-card .gate-fallback input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(232,185,48,0.15);
+    }
+    .voice-gate-card .gate-fallback .gate-submit {
+      display: inline-block;
+      padding: 0.55rem 1.8rem;
+      font-family: var(--font-body);
+      font-size: 0.85rem; font-weight: 500;
+      color: #fff; cursor: pointer;
+      background: linear-gradient(135deg, var(--gold), #d4a020);
+      border: none; border-radius: 30px;
+      box-shadow: 0 4px 16px rgba(232,185,48,0.3);
+      transition: all 0.25s ease;
+    }
+    .voice-gate-card .gate-fallback .gate-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232,185,48,0.4);
+    }
+
+    .voice-gate-card .gate-start-btn {
+      display: none;
+      margin-top: 0.8rem;
+      padding: 0.55rem 1.8rem;
+      font-family: var(--font-body);
+      font-size: 0.85rem; font-weight: 500;
+      color: #fff; cursor: pointer;
+      background: linear-gradient(135deg, var(--rose), #c04860);
+      border: none; border-radius: 30px;
+      box-shadow: 0 4px 16px rgba(224,96,112,0.3);
+      transition: all 0.25s ease;
+    }
+    .voice-gate-card .gate-start-btn.active { display: inline-block; }
+    .voice-gate-card .gate-start-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(224,96,112,0.4);
+    }
   </style>
 </head>
 <body>
+
+  <!-- Voice Recognition Gate -->
+  <div class="voice-gate-overlay" id="voiceGateOverlay">
+    <div class="voice-gate-card">
+      <div class="gate-mic-icon" id="gateMicIcon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+          <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+        </svg>
+      </div>
+      <p class="gate-title">请说出通关密语</p>
+      <p class="gate-hint">请说 "爱你一万年"</p>
+      <p class="gate-feedback" id="gateFeedback">正在聆听...</p>
+      <button class="gate-start-btn" id="gateStartBtn">点击开始语音识别</button>
+      <div class="gate-fallback" id="gateFallback">
+        <input type="text" id="gateInput" placeholder="请输入通关密语" autocomplete="off" />
+        <br/>
+        <button class="gate-submit" id="gateSubmit">确认</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Intro Popup Overlay -->
   <div class="intro-overlay" id="introOverlay">
@@ -682,9 +832,160 @@
     'use strict';
 
     /* ================================================================
-       INTRO POPUP — sequential welcome messages
+       VOICE RECOGNITION GATE
        ================================================================ */
     (function () {
+      var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      var overlay    = document.getElementById('voiceGateOverlay');
+      var micIcon    = document.getElementById('gateMicIcon');
+      var feedback   = document.getElementById('gateFeedback');
+      var fallback   = document.getElementById('gateFallback');
+      var inputEl    = document.getElementById('gateInput');
+      var submitBtn  = document.getElementById('gateSubmit');
+      var startBtn   = document.getElementById('gateStartBtn');
+
+      var TARGET = '爱你一万年';
+      var gateOpen = false;
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      /* ---- Fuzzy matching ---- */
+      function matchesTarget(text) {
+        if (!text) return false;
+        var cleaned = text.replace(/[\s　.,!?，。！？、~～·…\-—]/g, '');
+        if (cleaned.indexOf(TARGET) !== -1) return true;
+        var rawCleaned = text.replace(/\s/g, '');
+        if (rawCleaned.indexOf(TARGET) !== -1) return true;
+        var target = TARGET;
+        var ti = 0, matched = 0;
+        for (var i = 0; i < cleaned.length && ti < target.length; i++) {
+          if (cleaned[i] === target[ti]) { matched++; ti++; }
+        }
+        return matched >= 4;
+      }
+
+      /* ---- Gate success ---- */
+      function openGate() {
+        if (gateOpen) return;
+        gateOpen = true;
+        feedback.textContent = '密语正确！欢迎~';
+        feedback.className = 'gate-feedback success';
+        micIcon.classList.remove('listening');
+        if (recognition) { try { recognition.stop(); } catch (e) {} }
+        setTimeout(function () {
+          overlay.classList.add('fade-out');
+          setTimeout(function () {
+            overlay.remove();
+            if (window._startIntro) window._startIntro();
+          }, 600);
+        }, 800);
+      }
+
+      /* ---- Fallback input ---- */
+      function setupFallback(message) {
+        if (message) feedback.textContent = message;
+        feedback.className = 'gate-feedback error';
+        fallback.classList.add('active');
+        micIcon.style.display = 'none';
+        startBtn.classList.remove('active');
+        function checkInput() {
+          if (matchesTarget(inputEl.value)) {
+            openGate();
+          } else {
+            feedback.textContent = '密语不正确，请重试';
+            feedback.className = 'gate-feedback error';
+          }
+        }
+        submitBtn.addEventListener('click', checkInput);
+        inputEl.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') checkInput();
+        });
+      }
+
+      /* ---- Block background interaction ---- */
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) e.stopPropagation();
+      });
+
+      /* ---- SpeechRecognition setup ---- */
+      var recognition = null;
+
+      function startListening() {
+        if (!recognition) return;
+        try {
+          recognition.start();
+          micIcon.classList.add('listening');
+          feedback.textContent = '正在聆听...';
+          feedback.className = 'gate-feedback';
+        } catch (e) {
+          setupFallback('无法启动语音识别，请手动输入密语：');
+        }
+      }
+
+      if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'zh-CN';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 5;
+
+        recognition.onresult = function (event) {
+          for (var i = event.resultIndex; i < event.results.length; i++) {
+            var result = event.results[i];
+            for (var a = 0; a < result.length; a++) {
+              if (matchesTarget(result[a].transcript)) {
+                openGate();
+                return;
+              }
+            }
+            if (!result.isFinal) {
+              feedback.textContent = '听到: "' + result[0].transcript + '"';
+              feedback.className = 'gate-feedback';
+            }
+          }
+        };
+
+        recognition.onerror = function (event) {
+          if (event.error === 'no-speech') {
+            feedback.textContent = '没有检测到语音，请再试一次';
+          } else if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            setupFallback('麦克风权限被拒绝，请手动输入密语：');
+          } else {
+            feedback.textContent = '识别出错: ' + event.error + '，请重试';
+          }
+        };
+
+        recognition.onend = function () {
+          if (!gateOpen) {
+            try { recognition.start(); } catch (e) {}
+          }
+        };
+
+        if (isIOS) {
+          startBtn.classList.add('active');
+          feedback.textContent = '请点击按钮开始语音识别';
+          startBtn.addEventListener('click', function () {
+            startBtn.classList.remove('active');
+            startListening();
+          });
+        } else {
+          startListening();
+        }
+      } else {
+        setupFallback('当前浏览器不支持语音识别，请手动输入密语：');
+      }
+
+      /* ---- Show the gate overlay ---- */
+      requestAnimationFrame(function () {
+        overlay.classList.add('visible');
+      });
+
+    })();
+
+    /* ================================================================
+       INTRO POPUP — sequential welcome messages (deferred until voice gate passes)
+       ================================================================ */
+    window._startIntro = function () {
       var steps = [
         { icon: '🎁', text: '这里有一份小礼物，不知道你会不会喜欢' },
         { icon: '💫', text: '也许与其他人相比这份礼物显得很微不足道' },
@@ -844,7 +1145,7 @@
         measureCard();
         randomPosition();
       });
-    })();
+    };
 
     /* ================================================================
        SVG ICONS
